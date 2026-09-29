@@ -132,6 +132,18 @@ p { text-wrap: pretty; }
 }
 .nav__glide.is-on { opacity: 1; }
 .nav .btn--small { border-radius: 999px; min-height: 44px; }
+/* Language switch: EN | VI, the active one lit like the nav highlight */
+.lang { display: flex; flex: none; padding: 3px; border-radius: 999px; border: 1px solid rgba(232, 240, 246, .16); }
+.lang button {
+  min-width: 36px; height: 32px; padding: 0 9px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+  font: 600 .74rem/1 var(--sans); letter-spacing: .05em; color: rgba(232, 240, 246, .6); transition: color .25s, background-color .25s;
+}
+.lang button:hover { color: var(--white); }
+.lang button[aria-pressed="true"] { color: var(--white); background: rgba(107, 207, 237, .2); box-shadow: inset 0 0 0 1px rgba(107, 207, 237, .35); }
+.lang button:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+.lang--compact { display: none; }
+/* Schibsted Grotesk has no Vietnamese glyphs; Be Vietnam Pro takes over UI text in Vietnamese */
+:root[lang="vi"] { --sans: "Be Vietnam Pro", "Helvetica Neue", Arial, sans-serif; }
 .nav__toggle { display: none; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 50%; background: none; color: var(--white); cursor: pointer; }
 .nav__toggle .ico { width: 24px; height: 24px; }
 
@@ -248,18 +260,9 @@ p { text-wrap: pretty; }
 .edge__photo img { width: 100%; height: 100%; object-fit: cover; }
 .edge__text > p { margin-top: 24px; color: var(--muted); max-width: 58ch; }
 
-.compare { margin-top: 40px; font-size: .95rem; }
-.compare th, .compare td { text-align: left; padding: 16px 16px 16px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-.compare thead th { font-weight: 500; color: var(--muted); font-size: .875rem; padding-top: 0; }
-.compare tbody th { font-weight: 400; color: var(--text); width: 46%; }
-.compare td { white-space: nowrap; font-weight: 500; color: var(--ink); }
-.compare td .ico { width: 18px; height: 18px; margin: 0 8px -3px 0; display: inline-block; stroke-width: 2; }
-.ico--yes { color: #23875E; }
-.ico--no { color: #B8474B; }
-
-.proof { margin-top: 56px; }
+.proof { margin-top: 48px; }
 .proof__intro { color: var(--muted); max-width: 52ch; }
-.proof__list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px; }
+.proof__list { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 24px 48px; margin-top: 24px; }
 .proof__list li { font-size: .95rem; color: var(--muted); line-height: 1.45; }
 .proof__num { display: block; margin-bottom: 8px; font-family: var(--serif); font-weight: 300; font-size: clamp(1.9rem, 2.8vw, 2.5rem); line-height: 1; letter-spacing: -.02em; color: var(--ink); }
 
@@ -295,7 +298,7 @@ p { text-wrap: pretty; }
 .dot--add { box-shadow: inset 0 0 0 1.5px var(--sky-text); background: var(--mist); }
 
 /* Impact */
-.note { font-family: var(--serif); font-style: italic; font-size: clamp(1.1rem, 1.5vw, 1.3rem); line-height: 1.5; color: var(--on-dark-muted); max-width: 46ch; padding-left: 24px; border-left: 1px solid var(--sky); }
+.note { font-family: var(--sans); font-size: .8rem; line-height: 1.5; color: var(--on-dark-muted); padding-left: 12px; border-left: 1px solid var(--sky); }
 
 .target { display: grid; grid-template-columns: auto 1fr; gap: clamp(32px, 6vw, 96px); align-items: center; padding-bottom: clamp(56px, 7vw, 88px); border-bottom: 1px solid var(--rule-dark); }
 .target__num { font-family: var(--serif); font-weight: 300; font-size: clamp(7rem, 17vw, 14rem); line-height: .8; letter-spacing: -.05em; color: var(--sky); }
@@ -315,6 +318,7 @@ p { text-wrap: pretty; }
 .outcome h3 { font-size: 1.3rem; color: var(--white); }
 .outcome > p:not(.outcome__num) { margin-top: 14px; font-size: .98rem; color: var(--on-dark-muted); }
 .outcome__num { margin-top: 18px; font-family: var(--serif); font-weight: 300; font-size: clamp(3rem, 4.8vw, 4.25rem); line-height: 1; letter-spacing: -.03em; color: var(--white); }
+.outcome__unit { font-size: .5em; letter-spacing: -.01em; }   /* long Vietnamese unit stays on the figure's line */
 .share { display: flex; gap: 3px; margin-top: 22px; height: 44px; font-size: .9rem; font-weight: 600; }
 .share span { display: flex; align-items: center; padding: 0 14px; }
 .share__owner { flex: 85; background: var(--sky); color: var(--night); border-radius: 3px 0 0 3px; }
@@ -378,13 +382,15 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .res__pair { display: flex; justify-content: space-between; gap: 16px; color: var(--on-dark-muted); }
 .res__pair strong { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; color: var(--white); font-variant-numeric: lining-nums tabular-nums; }
 .calc__foot { font-size: .85rem; line-height: 1.6; color: var(--on-dark-muted); max-width: 70ch; }
-
-/* Audiences (asks) */
-.audiences { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(32px, 4vw, 64px); }
-.audience { display: flex; flex-direction: column; padding-top: 28px; border-top: 1px solid var(--ink); }
-.audience h3 { font-size: 1.5rem; }
-.audience p { margin-top: 14px; font-size: 1rem; color: var(--muted); }
-.audience .textlink { margin-top: auto; padding-top: 22px; align-self: flex-start; }
+/* collapsed to an underlined link; the full method opens in place */
+.calc__foot summary {
+  display: inline-block; list-style: none; cursor: pointer; padding: 6px 0; color: var(--on-dark); font-weight: 500;
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--rule-dark); transition: text-decoration-color .2s;
+}
+.calc__foot summary::-webkit-details-marker { display: none; }
+.calc__foot summary:hover, .calc__foot[open] summary { text-decoration-color: var(--sky); }
+.calc__foot summary:focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; }
+.calc__foot p { margin-top: 8px; }
 
 /* Market */
 .path { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 0; margin-top: 36px; font-size: .95rem; color: var(--muted); }
@@ -397,12 +403,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .pressure__num { font-family: var(--serif); font-weight: 300; font-size: clamp(2.75rem, 4.4vw, 3.75rem); line-height: 1; letter-spacing: -.025em; color: var(--ink); }
 .pressure h4 { margin-top: 20px; }
 .pressure > p:last-child { margin-top: 10px; font-size: .98rem; color: var(--muted); }
-
-.statement { position: relative; margin-top: clamp(96px, 11vw, 144px); margin-bottom: calc(var(--band) * -1); min-height: 520px; display: flex; align-items: center; overflow: hidden; isolation: isolate; background: var(--ink); }
-.statement img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
-.statement::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(15, 30, 53, .94) 0%, rgba(15, 30, 53, .8) 55%, rgba(15, 30, 53, .45) 100%); }
-.statement blockquote { padding-block: 96px; }
-.statement p { max-width: 24ch; font-family: var(--serif); font-weight: 300; font-size: clamp(2rem, 3.8vw, 3.25rem); line-height: 1.12; letter-spacing: -.018em; color: var(--white); text-wrap: balance; }
 
 /* Roadmap */
 .timeline { margin-bottom: 56px; }
@@ -440,26 +440,22 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .closing__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
 .closing::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(24, 44, 79, .72) 0%, rgba(15, 30, 53, .95) 75%); }
 .closing h2 { color: var(--white); font-weight: 300; font-size: clamp(2.5rem, 5vw, 4.5rem); max-width: 16ch; }
-.closing .lede { color: var(--on-dark); }
-.audiences--dark { margin-top: clamp(64px, 8vw, 104px); }
-.audiences--dark .audience { border-top-color: rgba(232, 240, 246, .4); }
-.audiences--dark h3 { color: var(--white); }
-.audiences--dark p { color: var(--on-dark-muted); }
-.audiences--dark .textlink { color: var(--sky); }
+.closing .lede { color: var(--on-dark); max-width: 52ch; }
+.closing__actions { margin-top: 40px; }
 
 /* Interface type: small functional text uses Schibsted Grotesk; reading text stays in Newsreader */
-.source, .figure__text, .compare, .fit__table, .plan__price, .plan__for, .plan__best, .res__label, .res__sub, .res__pair span,
+.source, .figure__text, .fit__table, .plan__price, .plan__for, .plan__best, .res__label, .res__sub, .res__pair span,
 .field label, .field__help, .field__error, .field__unit, .choice legend, .choice span, .scale__labels, .timeline__axis,
 .phase__when, .milestones dt, .bars__row dt, .econ__sub, .path, .calc__foot, .share, .textlink, .footer__nav a,
 .footer__contact li, .footer__base, .target__floor, .outcome > p:not(.outcome__num), .proof__list li { font-family: var(--sans); }
 .figure__text, .plan__for { font-size: .95rem; }
-.step p:not(.step__n), .safeguards p, .pressure > p:last-child, .audience p, .fit__text p { font-size: 1.04rem; line-height: 1.6; }
+.step p:not(.step__n), .safeguards p, .pressure > p:last-child, .fit__text p { font-size: 1.04rem; line-height: 1.6; }
 /* expansion path: connectors trail each item, so a wrapped line never starts with a dash */
 .path li + li::before { content: none; }
 .path li:not(:last-child)::after { content: ""; width: 20px; height: 1px; margin: 0 12px; background: var(--rule); }
 .path li { white-space: nowrap; }
 .fit__table thead th { font-family: var(--serif); }
-.target__floor, .outcome > p:not(.outcome__num), .proof__list li, .compare { font-size: .92rem; }
+.target__floor, .outcome > p:not(.outcome__num), .proof__list li { font-size: .92rem; }
 
 /* Color layer */
 
@@ -519,7 +515,7 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
    The page reads as one background: every section starts in exactly the colour the previous
    one ends in, and changes of tone happen as long fades inside the section's bottom padding
    (never behind text). Order: dark hero > dark opener > light (Problem, Solution, Product)
-   > dark (Impact + ask) > light (Market, Roadmap) > dark (closing, footer). */
+   > dark (Impact) > light (Market, Roadmap) > dark (closing, About, footer). */
 :root {
   --light: #F3F8FB; --light-2: #E9F2F8; --fade: 380px;
   /* ramps pass through the brand blues rather than grey, so a fade reads like dusk turning to sky */
@@ -528,17 +524,14 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 }
 .band--white, .band--air, .band--mist { background: var(--light); }
 /* each fade: flat colour, then a long ramp over the last --fade pixels; padding grows to hold it */
-.opener, #product, .ask, #roadmap { padding-bottom: calc(var(--band) * .5 + var(--fade)); }
+.opener, #product, #impact, #roadmap { padding-bottom: calc(var(--band) * .5 + var(--fade)); }
 .opener { background: linear-gradient(180deg, var(--night) 0, var(--to-light)); }
 #solution { background: linear-gradient(180deg, var(--light) 0%, var(--light-2) 100%); }
 #product {
   background: linear-gradient(180deg, var(--light-2) 0, var(--light-2) calc(100% - var(--fade)), #BCD6E8 calc(100% - var(--fade) * .85),
               #5D86AE calc(100% - var(--fade) * .58), #1E3A62 calc(100% - var(--fade) * .28), var(--night) 100%);
 }
-#impact { padding-bottom: calc(var(--band) * .5); }
-.ask { padding-top: calc(var(--band) * .5); background: linear-gradient(180deg, var(--night) 0, var(--to-light)); }
-.ask .lede { color: var(--on-dark-muted); }
-.ask .audiences--dark { margin-top: 0; }
+#impact { background: linear-gradient(180deg, var(--night) 0, var(--to-light)); }
 #roadmap {
   background: linear-gradient(180deg, var(--light) 0, var(--light) calc(100% - var(--fade)), #BCD6E8 calc(100% - var(--fade) * .85),
               #5D86AE calc(100% - var(--fade) * .58), #1E3A62 calc(100% - var(--fade) * .28), var(--night) 100%);
@@ -553,12 +546,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 }
 .closing { padding-top: calc(var(--band) + 120px); }
 .closing::before { background: linear-gradient(180deg, var(--night) 0%, rgba(15, 30, 53, .74) 28%, rgba(24, 44, 79, .72) 55%, var(--night) 100%); }
-/* the Market statement becomes an inset panel instead of a full-width strip */
-.statement {
-  width: min(calc(100% - 2 * var(--gutter)), calc(1280px - 2 * var(--gutter)));
-  margin: clamp(96px, 11vw, 144px) auto 0; border-radius: 10px; min-height: 460px;
-}
-.statement blockquote { padding-inline: clamp(28px, 5vw, 72px); }
 
 .head--split .impact__title { max-width: none; text-wrap: initial; }
 /* Impact: ESG columns (E green, S sky, G amber) */
@@ -614,10 +601,16 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   .fit, .milestones { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 940px) {
+/* the nav collapses earlier than the layout: links, language switch and button no longer fit
+   side by side below about 1080px (Vietnamese labels are longer) */
+@media (max-width: 1080px) {
   :root { --nav-h: 84px; }
-  .nav__island { height: 56px; padding: 0 6px 0 18px; }
+  .nav__island { height: 56px; padding: 0 6px 0 18px; gap: 6px; }
   .nav__toggle { display: grid; }
+  /* on small screens the switch stays in the island, beside the menu button */
+  .nav__menu .lang { display: none; }
+  .lang--compact { display: flex; margin-left: auto; }
+  .lang--compact button { height: 36px; }
   /* the menu opens as a second glass panel under the island */
   .nav__menu {
     position: absolute; top: calc(100% + 8px); left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 14px;
@@ -632,14 +625,16 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   .nav__links a.is-active { background: rgba(107, 207, 237, .18); }
   .nav__glide { display: none; }
   .nav .btn--small { min-height: 48px; }
+}
 
+@media (max-width: 940px) {
   .opener__grid, .demo { grid-template-columns: 1fr; }
   .split, .split--flip, .edge, .head--split { grid-template-columns: 1fr; }
   .viz__canvas { aspect-ratio: 4 / 3; max-height: none; }
   .split__photo { aspect-ratio: 3 / 2; }
   .split--flip .split__photo { order: 2; }
   .edge__photo { position: static; aspect-ratio: 3 / 2; }
-  .steps, .plans, .outcomes, .audiences, .pressures, .phases, .esg__cols, .about__grid { grid-template-columns: 1fr; }
+  .steps, .plans, .outcomes, .pressures, .phases, .esg__cols, .about__grid { grid-template-columns: 1fr; }
   .calc { grid-template-columns: 1fr; }
   .footer__grid { grid-template-columns: 1fr 1fr; }
   .footer__about { grid-column: 1 / -1; }
@@ -654,7 +649,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   .bars__row { grid-template-columns: 1fr; gap: 8px; }
   .calc__out { grid-template-columns: 1fr; }
   .choice { grid-template-columns: 1fr; }
-  .compare td { white-space: normal; }
   .fit__table { font-size: .85rem; }
   .fit__table th, .fit__table td { padding: 12px 6px; }
   .fit__table thead th { font-size: 1rem; }
@@ -667,7 +661,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   .hero .hero__title { font-size: clamp(2.3rem, 10.5vw, 3rem); line-height: 1.06; }
   .hero__title br { display: none; }              /* wrap naturally on narrow screens */
   .hero__title .c-sky, .hero__title .c-amber:first-of-type { white-space: nowrap; }
-  .statement { min-height: 420px; }
 }
 
 /* Scroll reveal

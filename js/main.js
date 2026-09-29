@@ -3,21 +3,27 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // translated runtime strings come from i18n.js; isVi() drives number formats
+  function T(k) { return window.I18N ? window.I18N.t(k) : ''; }
+  function isVi() { return document.documentElement.lang === 'vi'; }
+
   /* ---------- Nav ---------- */
   var nav = document.getElementById('nav');
   var toggle = nav.querySelector('.nav__toggle');
 
+  function menuLabel() { toggle.setAttribute('aria-label', T(nav.classList.contains('is-open') ? 'menu.close' : 'menu.open')); }
   function closeMenu() {
     nav.classList.remove('is-open');
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Open menu');
+    menuLabel();
   }
   toggle.addEventListener('click', function () {
     var open = !nav.classList.contains('is-open');
     nav.classList.toggle('is-open', open);
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    menuLabel();
   });
+  menuLabel();
   nav.querySelectorAll('.nav__menu a').forEach(function (a) { a.addEventListener('click', closeMenu); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
 
@@ -78,6 +84,12 @@
 
   window.addEventListener('resize', placeGlide);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeGlide);
+  // link widths change with the language (and its font, which may still be loading)
+  document.addEventListener('langchange', function () {
+    menuLabel();
+    placeGlide();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeGlide);
+  });
 
   /* ---------- Scroll reveal, played in both directions ----------
      Elements animate in as they enter the viewport and retract as they leave it.
@@ -114,7 +126,11 @@
     }
 
     // headlines
-    each('.hero h1, h2:not(.footer__h), .h3-large, .subhead, .statement p', splitWords);
+    each('.hero h1, h2:not(.footer__h), .h3-large, .subhead', splitWords);
+    // a language switch replaces headline text, so split the new words again
+    document.addEventListener('langchange', function () {
+      each('[data-reveal="words"]', function (el) { if (!el.querySelector('.w')) splitWords(el); });
+    });
     document.querySelector('.hero h1').setAttribute('data-delay', 350);   // let the photo settle first
 
     // Problem opener and the Solution demo
@@ -124,14 +140,14 @@
     each([
       '.lede', '.split__text > p', '.source', '.steps__note', '.edge__text > p', '.proof__intro',
       '.fit__text h3', '.fit__text p', '.note', '.target__lead', '.target__floor', '.econ h3', '.econ__sub',
-      '.calc__in', '.milestones h3', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
+      '.calc__in', '.closing__actions', '.milestones h3', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
     ].join(','), function (el) { mark(el, 'fade'); });
     mark(document.querySelector('.target__num'), 'rise');
 
     // members of a set are watched one by one, so tall sets (cards, phases, rows) react item by item
     each([
-      '.figures', '.steps', '.safeguards', '.compare tbody', '.proof__list', '.plans', '.fit__table tbody',
-      '.outcomes', '.esg__cols', '.bars', '.calc__out', '.audiences', '.path', '.pressures', '.phases', '.milestones dl'
+      '.figures', '.steps', '.safeguards', '.proof__list', '.plans', '.fit__table tbody',
+      '.outcomes', '.esg__cols', '.bars', '.calc__out', '.path', '.pressures', '.phases', '.milestones dl'
     ].join(','), function (set) {
       Array.prototype.forEach.call(set.children, function (child) { mark(child, 'item'); });
     });
@@ -236,7 +252,14 @@
     co2: document.getElementById('oCo2'), owner: document.getElementById('oOwner'), airai: document.getElementById('oAirai')
   };
 
-  function fmtVnd(v) { return v >= 1e9 ? (v / 1e9).toFixed(2) + 'B' : (v / 1e6).toFixed(1) + 'M'; }
+  // 174,735 and 698.9M in English; 174.735 and 698,9 triệu in Vietnamese
+  function num(v, digits) {
+    return v.toLocaleString(isVi() ? 'vi-VN' : 'en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  }
+  function fmtVnd(v) {
+    if (v >= 1e9) return num(v / 1e9, 2) + (isVi() ? ' tỷ' : 'B');
+    return num(v / 1e6, 1) + (isVi() ? ' triệu' : 'M');
+  }
   function currentRate() {
     var r = 0.2;
     rates.forEach(function (x) { if (x.checked) r = parseFloat(x.value); });
@@ -255,13 +278,15 @@
     if (!valid) return;
     var kwh = a * EUI * HVAC_SHARE * currentRate();
     var vnd = kwh * PRICE;
-    out.kwh.textContent = Math.round(kwh).toLocaleString('en-US');
+    var usd = num(Math.round(vnd / FX / 100) * 100, 0), dong = isVi() ? ' đồng' : ' VND';
+    out.kwh.textContent = num(Math.round(kwh), 0);
     out.vnd.textContent = fmtVnd(vnd);
-    out.usd.textContent = 'about USD ' + (Math.round(vnd / FX / 100) * 100).toLocaleString('en-US');
-    out.co2.textContent = (kwh / 1000 * GRID).toFixed(1);
-    out.owner.textContent = fmtVnd(vnd * (1 - GAIN)) + ' VND';
-    out.airai.textContent = fmtVnd(vnd * GAIN) + ' VND';
+    out.usd.textContent = isVi() ? 'khoảng ' + usd + ' USD' : 'about USD ' + usd;
+    out.co2.textContent = num(kwh / 1000 * GRID, 1);
+    out.owner.textContent = fmtVnd(vnd * (1 - GAIN)) + dong;
+    out.airai.textContent = fmtVnd(vnd * GAIN) + dong;
   }
+  document.addEventListener('langchange', calc);
   area.addEventListener('input', function () {
     var a = parseFloat(area.value);
     if (!isNaN(a)) areaRange.value = Math.min(Math.max(a, AREA_MIN), +areaRange.max);
@@ -284,14 +309,6 @@
   // Illustrative occupancy per floor, top floor first. Four floors are empty.
   var OCC = [0.85, 0, 0.4, 1, 0, 0.6, 0.15, 0, 0.9];
   var MIN_AIR = 0.05; // fresh-air minimum AirAI keeps on empty floors
-  var CAPTIONS = {
-    fixed: 'On a fixed schedule every floor is cooled all day, full or empty. The amber floors have no one in them.',
-    ai: 'With AirAI the air follows the people. Empty floors ease back to minimum ventilation and busy floors are served first.'
-  };
-  var LABELS = {
-    fixed: 'Illustration of a nine-floor office building. On a fixed schedule, conditioned air flows into every floor, including four empty ones.',
-    ai: 'Illustration of the same building with AirAI. Air flows mainly to occupied floors; the four empty floors receive only minimum ventilation.'
-  };
 
   var mode = 'fixed';
   var flow = OCC.map(function () { return 1; });
@@ -426,13 +443,18 @@
     if (m === mode) return;
     mode = m;
     buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === m)); });
-    caption.textContent = CAPTIONS[m];
-    canvas.setAttribute('aria-label', LABELS[m]);
+    describe();
     if (reduceMotion) { seedStatic(); drawFrame(0); }
+  }
+  function describe() {
+    caption.textContent = T('viz.cap.' + mode);
+    canvas.setAttribute('aria-label', T('viz.label.' + mode));
   }
   buttons.forEach(function (b) {
     b.addEventListener('click', function () { setMode(b.getAttribute('data-mode'), true); });
   });
+  describe();
+  document.addEventListener('langchange', describe);
 
   layout();
   if (reduceMotion) {
