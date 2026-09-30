@@ -29,8 +29,8 @@
 
   /* Active section + gliding highlight.
      The highlight follows the section in view. When a link is clicked it glides straight to
-     that link, and the scroll spy is paused until the smooth scroll ends, so it does not
-     step through every section passed on the way. */
+     that link, and the scroll spy is paused until the scroll ends (see slowScrollTo), so it
+     does not step through every section passed on the way. */
   var navLinks = Array.prototype.slice.call(nav.querySelectorAll('.nav__links a'));
   var glide = nav.querySelector('.nav__glide');
   var activeId = null, spyPaused = false;
@@ -62,25 +62,63 @@
     });
   }
 
-  function pauseSpyUntilScrollEnds() {
-    spyPaused = true;
-    var done = false;
-    function resume() {
-      if (done) return;
-      done = true;
-      window.removeEventListener('scrollend', resume);
-      spyPaused = false;
-    }
-    window.addEventListener('scrollend', resume);
-    setTimeout(resume, 1600);   // fallback where scrollend is not supported
+  /* In-page links scroll at our own pace: the browser's smooth scroll is too fast for a page
+     this long and its speed cannot be set. Duration grows with distance between SCROLL_MIN and
+     SCROLL_MAX; raise SCROLL_MS_PER_PX (or the two limits) to slow it further. The scroll spy is
+     paused while it runs, and any wheel, touch or key press hands control back to the visitor. */
+  var SCROLL_MIN = 1400, SCROLL_MAX = 3200, SCROLL_MS_PER_PX = 0.55;
+  var scrollAnim = 0;
+
+  function stopScroll() {
+    if (!scrollAnim) return;
+    cancelAnimationFrame(scrollAnim);
+    scrollAnim = 0;
+    spyPaused = false;
   }
-  navLinks.forEach(function (a) {
-    a.addEventListener('click', function () {
-      setActive(a.getAttribute('href').slice(1));
-      pauseSpyUntilScrollEnds();
-    });
+  function slowScrollTo(getY, done) {
+    stopScroll();
+    function dest() { return Math.max(0, Math.min(getY(), document.documentElement.scrollHeight - window.innerHeight)); }
+    var from = window.scrollY, to = dest();
+    if (reduceMotion || Math.abs(to - from) < 2) {
+      window.scrollTo({ top: to, behavior: 'instant' });
+      if (done) done();
+      return;
+    }
+    var dur = Math.min(SCROLL_MAX, Math.max(SCROLL_MIN, Math.abs(to - from) * SCROLL_MS_PER_PX));
+    var t0 = performance.now();
+    spyPaused = true;
+    function step(now) {
+      var p = Math.min(1, (now - t0) / dur);
+      var e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;   // ease in and out
+      to = dest();                                                        // follow late layout shifts (lazy images)
+      window.scrollTo({ top: from + (to - from) * e, behavior: 'instant' });
+      if (p < 1) { scrollAnim = requestAnimationFrame(step); return; }
+      scrollAnim = 0;
+      spyPaused = false;
+      if (done) done();
+    }
+    scrollAnim = requestAnimationFrame(step);
+  }
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function (type) {
+    window.addEventListener(type, stopScroll, { passive: true });
   });
-  nav.querySelector('.brand').addEventListener('click', function () { setActive(null); pauseSpyUntilScrollEnds(); });
+
+  function sectionTop(el) {
+    var offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    return el.getBoundingClientRect().top + window.scrollY - offset;
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    // contact buttons have their own handler; the skip link must keep its native focus jump
+    if (!a || a.hasAttribute('data-contact') || a.classList.contains('skip-link')) return;
+    var id = a.getAttribute('href').slice(1), el = id && document.getElementById(id);
+    if (!el) return;
+    e.preventDefault();
+    if (a.closest('.nav__links')) setActive(id);
+    else if (a.classList.contains('brand')) setActive(null);
+    history.pushState(null, '', '#' + id);
+    slowScrollTo(function () { return id === 'top' ? 0 : sectionTop(el); });
+  });
 
   window.addEventListener('resize', placeGlide);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeGlide);
@@ -224,19 +262,15 @@
   document.querySelectorAll('[data-contact]').forEach(function (link) {
     link.addEventListener('click', function (e) {
       e.preventDefault();
-      var done = false;
-      function flash() {
-        if (done) return;
-        done = true;
-        window.removeEventListener('scrollend', flash);
+      history.replaceState(null, '', '#contact');
+      slowScrollTo(function () {
+        var r = contact.getBoundingClientRect();
+        return r.top + window.scrollY - (window.innerHeight - r.height) / 2;   // centre the block
+      }, function () {
         contact.focus({ preventScroll: true });
         contact.classList.add('is-flash');
         setTimeout(function () { contact.classList.remove('is-flash'); }, 2400);
-      }
-      window.addEventListener('scrollend', flash);
-      setTimeout(flash, reduceMotion ? 50 : 1400);
-      contact.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
-      history.replaceState(null, '', '#contact');
+      });
     });
   });
 
