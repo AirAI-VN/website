@@ -13,8 +13,9 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/newsreader-normal-latin.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="fonts/schibstedgrotesk-normal-latin.woff2" crossorigin>
   <link rel="preload" as="image" href="img/hero.jpg">
-  <link rel="stylesheet" href="css/fonts.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- ?v= forces browsers to fetch fresh files after an update; bump it whenever css/ or js/ changes -->
+  <link rel="stylesheet" href="css/fonts.css?v=20261001">
+  <link rel="stylesheet" href="css/styles.css?v=20261001">
   <script>
     document.documentElement.classList.add('js');
     // apply a saved language choice before first paint, so the right fonts load straight away
@@ -482,7 +483,7 @@
   </div>
 </footer>
 
-<script src="js/i18n.js" defer></script>
-<script src="js/main.js" defer></script>
+<script src="js/i18n.js?v=20261001" defer></script>
+<script src="js/main.js?v=20261001" defer></script>
 </body>
 </html>
