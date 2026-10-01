@@ -47,9 +47,8 @@
         <li><a href="#solution" data-i18n="nav.solution">Solution</a></li>
         <li><a href="#product" data-i18n="nav.product">Product</a></li>
         <li><a href="#impact" data-i18n="nav.impact">Impact</a></li>
-        <li><a href="#market" data-i18n="nav.market">Market</a></li>
-        <li><a href="#roadmap" data-i18n="nav.roadmap">Roadmap</a></li>
         <li><a href="#about" data-i18n="nav.about">About</a></li>
+        <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
       </ul>
       <div class="lang" role="group" aria-label="Language" data-i18n-attr="aria-label:lang.aria">
         <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
@@ -91,21 +90,8 @@
       </div>
     </div>
   </div>
-</section>
 
-<!-- Problem: detail -->
-<section class="band band--white" aria-labelledby="problem-title">
-  <div class="wrap split">
-    <div class="split__text">
-      <h2 id="problem-title" data-i18n="problem.title">The building already owns the hardware. What’s missing is the intelligence to use it.</h2>
-      <p class="lede" data-i18n="problem.lede">Electricity keeps getting pricier and climate targets stricter, yet most climate control still runs the same way whether a floor is empty or full.</p>
-    </div>
-    <figure class="split__photo">
-      <img src="img/rooftop-units.jpg" alt="Rows of rooftop HVAC condenser units on a city building" data-i18n-attr="alt:problem.img" width="1400" height="1400" loading="lazy">
-    </figure>
-  </div>
-
-  <div class="wrap">
+  <div class="wrap opener__figures">
     <ul class="figures">
       <li>
         <p class="figure__num" data-i18n="fig1.num">105.9</p>
@@ -124,6 +110,19 @@
   </div>
 </section>
 
+<!-- Problem: detail -->
+<section class="band band--white" aria-labelledby="problem-title">
+  <div class="wrap split">
+    <div class="split__text">
+      <h2 id="problem-title" data-i18n="problem.title">The building already owns the hardware. What’s missing is the intelligence to use it.</h2>
+      <p class="lede" data-i18n="problem.lede">Electricity keeps getting pricier and climate targets stricter, yet most climate control still runs the same way whether a floor is empty or full.</p>
+    </div>
+    <figure class="split__photo">
+      <img src="img/rooftop-units.jpg" alt="Rows of rooftop HVAC condenser units on a city building" data-i18n-attr="alt:problem.img" width="1400" height="1400" loading="lazy">
+    </figure>
+  </div>
+</section>
+
 <!-- Solution -->
 <section class="band band--air" id="solution" aria-labelledby="solution-title">
   <div class="wrap">
@@ -132,24 +131,41 @@
       <p class="lede" data-i18n="solution.lede">Most “smart building” software stops at recommendations. AirAI closes the loop all the way to the equipment.</p>
     </header>
 
+    <!-- each box shows number and title; its text appears on hover, or on tap on touch screens -->
     <ol class="steps">
-      <li class="step">
+      <li class="step" tabindex="0">
         <p class="step__n" aria-hidden="true">1</p>
         <h3 data-i18n="step1.title">Sensing</h3>
-        <p data-i18n="step1.text">Live occupancy, temperature and CO<sub>2</sub> in every zone, plus current (CT) sensors that confirm the equipment actually responded.</p>
+        <div class="step__body">
+          <p class="step__hint" aria-hidden="true"><span class="hint--hover" data-i18n="step.hintHover">Hover to see more</span><span class="hint--tap" data-i18n="step.hintTap">Tap to see more</span></p>
+          <div class="step__more">
+            <p data-i18n="step1.text">Live occupancy, temperature and CO<sub>2</sub> in every zone, plus current (CT) sensors that confirm the equipment actually responded.</p>
+          </div>
+        </div>
       </li>
-      <li class="step">
+      <li class="step" tabindex="0">
         <p class="step__n" aria-hidden="true">2</p>
         <h3 data-i18n="step2.title">Decision-making</h3>
-        <p data-i18n="step2.text">Machine learning (LSTM, XGBoost) forecasts each zone’s thermal demand; Model Predictive Control sets valves, fan speeds and setpoints before demand peaks.</p>
+        <div class="step__body">
+          <p class="step__hint" aria-hidden="true"><span class="hint--hover" data-i18n="step.hintHover">Hover to see more</span><span class="hint--tap" data-i18n="step.hintTap">Tap to see more</span></p>
+          <div class="step__more">
+            <p data-i18n="step2.text">Machine learning (LSTM, XGBoost) forecasts each zone’s thermal demand; Model Predictive Control sets valves, fan speeds and setpoints before demand peaks.</p>
+            <p class="step__accent" data-i18n="step2.accent">Most smart-building tools stop at this step.</p>
+          </div>
+        </div>
       </li>
-      <li class="step step--act">
+      <li class="step step--act" tabindex="0">
         <p class="step__n" aria-hidden="true">3</p>
         <h3 data-i18n="step3.title">Actuation</h3>
-        <p data-i18n="step3.text">Commands run directly on the equipment: through the BMS where one exists, or through actuators AirAI installs where it doesn’t.</p>
+        <div class="step__body">
+          <p class="step__hint" aria-hidden="true"><span class="hint--hover" data-i18n="step.hintHover">Hover to see more</span><span class="hint--tap" data-i18n="step.hintTap">Tap to see more</span></p>
+          <div class="step__more">
+            <p data-i18n="step3.text">Commands run directly on the equipment: through the BMS where one exists, or through actuators AirAI installs where it doesn’t.</p>
+            <p class="step__accent" data-i18n="step3.accent">AirAI acts, then confirms each command happened and feeds that into the next prediction.</p>
+          </div>
+        </div>
       </li>
     </ol>
-    <p class="steps__note" data-i18n="steps.note">Most smart-building tools stop at step two. AirAI acts, then confirms each command happened and feeds that into the next prediction.</p>
 
     <div class="demo">
       <div class="demo__text">
@@ -365,13 +381,13 @@
 
       <div class="calc__out" aria-live="polite">
         <div class="res res--main">
-          <p class="res__label" data-i18n="res.kwh">HVAC electricity saved</p>
-          <p class="res__num"><span id="oKwh">174,735</span> <small data-i18n="res.kwhUnit">kWh a year</small></p>
-        </div>
-        <div class="res">
           <p class="res__label" data-i18n="res.vnd">Value of those savings</p>
           <p class="res__num"><span id="oVnd">698.9M</span> <small data-i18n="res.vndUnit">VND a year</small></p>
           <p class="res__sub" id="oUsd">about USD 28,000</p>
+        </div>
+        <div class="res">
+          <p class="res__label" data-i18n="res.kwh">HVAC electricity saved</p>
+          <p class="res__num"><span id="oKwh">174,735</span> <small data-i18n="res.kwhUnit">kWh a year</small></p>
         </div>
         <div class="res">
           <p class="res__label" data-i18n="res.co2">CO<sub>2</sub> avoided</p>
@@ -386,105 +402,6 @@
           <p data-i18n="calc.back">Every figure on this page uses one model: a 15,000 m² reference building, Hanoi’s average office energy use of 105.9 kWh per m² a year, an assumed 55% HVAC share, 20% savings, electricity at about 4,000 VND per kWh and Vietnam’s official 2023 grid factor of 0.6592 t CO<sub>2</sub> per MWh. A projection, not a quote.</p>
         </details>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- Market -->
-<section class="band band--white" id="market" aria-labelledby="market-title">
-  <div class="wrap split split--flip">
-    <figure class="split__photo">
-      <img src="img/office-dusk.jpg" alt="Office building at dusk with lights on across several floors" data-i18n-attr="alt:market.img" width="1100" height="1650" loading="lazy">
-    </figure>
-    <div class="split__text">
-      <h2 id="market-title" data-i18n="market.title">Why offices, and why now.</h2>
-      <p class="lede" data-i18n="market.lede">Offices already own HVAC hardware and, increasingly, a building management system. They don’t need heavy new infrastructure, only the missing decision layer.</p>
-      <p data-i18n="market.text">That makes them the fastest place to prove the model before moving into malls, hospitals and residential towers.</p>
-      <ol class="path" aria-label="Where AirAI goes next" data-i18n-attr="aria-label:path.aria">
-        <li data-i18n="path.1"><span><strong>Offices</strong>, today</span></li>
-        <li data-i18n="path.2">Shopping malls</li>
-        <li data-i18n="path.3">Private hospitals</li>
-        <li data-i18n="path.4">Residential towers</li>
-      </ol>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <h3 class="subhead" data-i18n="press.title">Three pressures are converging</h3>
-    <div class="pressures">
-      <div class="pressure">
-        <p class="pressure__num">+17%</p>
-        <h4 data-i18n="press1.title">Rising energy costs</h4>
-        <p data-i18n="press1.text">EVN has raised commercial tariffs four times since early 2023, so HVAC waste costs more every year.</p>
-      </div>
-      <div class="pressure">
-        <p class="pressure__num">2050</p>
-        <h4 data-i18n="press2.title">Tightening climate commitments</h4>
-        <p data-i18n="press2.text">Vietnam has pledged net zero by 2050 and a coal phase-out in the 2040s. Fixed-schedule buildings are falling behind what regulators, tenants and investors expect.</p>
-      </div>
-      <div class="pressure">
-        <p class="pressure__num" data-i18n="press3.num">15 to 25%</p>
-        <h4 data-i18n="press3.title">A proven model, not yet local</h4>
-        <p data-i18n="press3.text">Comparable systems abroad cut costs by 15 to 25% and carbon by 20 to 40%, but can’t serve buildings without electronic actuators, which is most of Hanoi. That gap is our opportunity.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Roadmap -->
-<section class="band band--air" id="roadmap" aria-labelledby="roadmap-title">
-  <div class="wrap">
-    <header class="head">
-      <h2 id="roadmap-title" data-i18n="road.title">Three phases, each gated before the next funding round.</h2>
-    </header>
-
-    <div class="timeline" aria-hidden="true">
-      <div class="timeline__bar">
-        <span class="timeline__seg timeline__seg--1" style="--from:0;--to:6"></span>
-        <span class="timeline__seg timeline__seg--2" style="--from:6;--to:18"></span>
-        <span class="timeline__seg timeline__seg--3" style="--from:18;--to:48"></span>
-        <span class="timeline__goal" style="--at:35"></span>
-      </div>
-      <div class="timeline__axis">
-        <span style="--at:0" data-i18n="road.m0">Month 0</span><span style="--at:6">6</span><span style="--at:18">18</span><span style="--at:35">35</span><span style="--at:48">48</span>
-      </div>
-    </div>
-
-    <ol class="phases">
-      <li class="phase">
-        <p class="phase__n" aria-hidden="true">1</p>
-        <h3 data-i18n="ph1.title">MVP development</h3>
-        <p class="phase__when" data-i18n="ph1.when">Month 0 to 6</p>
-        <p data-i18n="ph1.text">Build the AI core and shadow-test it on a real Vietnamese building’s data.</p>
-        <p class="phase__gate" data-i18n="ph1.gate"><strong>Moves on when</strong> predictions are accurate enough and a building commits to a pilot.</p>
-      </li>
-      <li class="phase">
-        <p class="phase__n" aria-hidden="true">2</p>
-        <h3 data-i18n="ph2.title">Commercial pilot</h3>
-        <p class="phase__when" data-i18n="ph2.when">Month 6 to 18</p>
-        <p data-i18n="ph2.text">Deploy AirAI Lite in 2 to 3 buildings, verify savings with an independent IPMVP audit and build the first case studies.</p>
-        <p class="phase__gate" data-i18n="ph2.gate"><strong>Moves on when</strong> measured savings reach 15% of HVAC use and at least one customer renews.</p>
-      </li>
-      <li class="phase">
-        <p class="phase__n" aria-hidden="true">3</p>
-        <h3 data-i18n="ph3.title">Scaling</h3>
-        <p class="phase__when" data-i18n="ph3.when">Month 18 to 48</p>
-        <p data-i18n="ph3.text">Grow the portfolio and roll out AirAI Full alongside Lite.</p>
-        <p class="phase__gate" data-i18n="ph3.gate"><strong>Target</strong> operating breakeven by Month 35, at 11 Lite plus 5 Full sites.</p>
-      </li>
-    </ol>
-
-    <div class="milestones">
-      <h3 data-i18n="ms.title">Milestones</h3>
-      <dl>
-        <div><dt data-i18n="ms.t1">Month 0</dt><dd data-i18n="ms.d1">Pre-seed of 4.2B VND closed, funding Phases 1 and 2</dd></div>
-        <div><dt data-i18n="ms.t2">Month 6</dt><dd data-i18n="ms.d2">MVP and shadow mode complete</dd></div>
-        <div><dt data-i18n="ms.t3">Month 8</dt><dd data-i18n="ms.d3">First commercial AirAI Lite contract</dd></div>
-        <div><dt data-i18n="ms.t4">Month 14</dt><dd data-i18n="ms.d4">First independent IPMVP report</dd></div>
-        <div><dt data-i18n="ms.t5">Month 18</dt><dd data-i18n="ms.d5">Seed round of 6.0B VND closed on pilot case studies</dd></div>
-        <div><dt data-i18n="ms.t6">Month 20 to 24</dt><dd data-i18n="ms.d6">First AirAI Full deployment</dd></div>
-        <div><dt data-i18n="ms.t7">Month 35</dt><dd data-i18n="ms.d7">Operating breakeven, 11 Lite plus 5 Full sites</dd></div>
-      </dl>
     </div>
   </div>
 </section>
@@ -515,6 +432,31 @@
   </div>
 </section>
 
+<!-- FAQ: each question is a button; its answer slides open beneath it -->
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap faq__grid">
+    <h2 id="faq-title" data-i18n="faq.title">Frequently asked questions</h2>
+    <div class="faq__list">
+      <div class="faq__item">
+        <h3 class="faq__q"><button type="button" id="faq-q1" aria-expanded="false" aria-controls="faq-a1"><span class="faq__n" aria-hidden="true">1</span><span class="faq__text" data-i18n="faq.q1">Could the AI make our building uncomfortable or unsafe?</span><span class="faq__icon" aria-hidden="true"></span></button></h3>
+        <div class="faq__a" id="faq-a1" role="region" aria-labelledby="faq-q1" inert><div class="faq__a-in"><p data-i18n="faq.a1">Before going live, the AI runs in shadow mode, making decisions without executing them so they can be checked against real operation. A local failsafe keeps equipment running safely if the cloud connection is lost.</p></div></div>
+      </div>
+      <div class="faq__item">
+        <h3 class="faq__q"><button type="button" id="faq-q2" aria-expanded="false" aria-controls="faq-a2"><span class="faq__n" aria-hidden="true">2</span><span class="faq__text" data-i18n="faq.q2">How is our building data protected?</span><span class="faq__icon" aria-hidden="true"></span></button></h3>
+        <div class="faq__a" id="faq-a2" role="region" aria-labelledby="faq-q2" inert><div class="faq__a-in"><p data-i18n="faq.a2">Data in transit is encrypted with TLS/SSL, with mutual authentication between the on-site gateway and the cloud.</p></div></div>
+      </div>
+      <div class="faq__item">
+        <h3 class="faq__q"><button type="button" id="faq-q3" aria-expanded="false" aria-controls="faq-a3"><span class="faq__n" aria-hidden="true">3</span><span class="faq__text" data-i18n="faq.q3">How long does it take to get started?</span><span class="faq__icon" aria-hidden="true"></span></button></h3>
+        <div class="faq__a" id="faq-a3" role="region" aria-labelledby="faq-q3" inert><div class="faq__a-in"><p data-i18n="faq.a3">Each project begins with a 6 to 8 week technical survey before contracting. After signing, AirAI Lite targets deployment within 6 weeks.</p></div></div>
+      </div>
+      <div class="faq__item">
+        <h3 class="faq__q"><button type="button" id="faq-q4" aria-expanded="false" aria-controls="faq-a4"><span class="faq__n" aria-hidden="true">4</span><span class="faq__text" data-i18n="faq.q4">Can AirAI help with our ESG reporting?</span><span class="faq__icon" aria-hidden="true"></span></button></h3>
+        <div class="faq__a" id="faq-a4" role="region" aria-labelledby="faq-q4" inert><div class="faq__a-in"><p data-i18n="faq.a4">Yes. Verified savings and avoided emissions give you auditable figures for sustainability reports. An optional package adds CO<sub>2</sub>, PM2.5 and VOC monitoring.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer class="footer">
@@ -531,6 +473,7 @@
         <li><a href="#product" data-i18n="nav.product">Product</a></li>
         <li><a href="#impact" data-i18n="nav.impact">Impact</a></li>
         <li><a href="#about" data-i18n="footer.about">About Us</a></li>
+        <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
       </ul>
     </nav>
 

@@ -56,7 +56,7 @@
         setActive(entry.target.id === 'top' ? null : entry.target.id);
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
-    ['top', 'problem', 'solution', 'product', 'impact', 'market', 'roadmap', 'about'].forEach(function (id) {
+    ['top', 'problem', 'solution', 'product', 'impact', 'about', 'faq'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) spy.observe(el);
     });
@@ -164,7 +164,7 @@
     }
 
     // headlines
-    each('.hero h1, h2:not(.footer__h), .h3-large, .subhead', splitWords);
+    each('.hero h1, h2:not(.footer__h), .h3-large', splitWords);
     // a language switch replaces headline text, so split the new words again
     document.addEventListener('langchange', function () {
       each('[data-reveal="words"]', function (el) { if (!el.querySelector('.w')) splitWords(el); });
@@ -176,22 +176,22 @@
 
     // single blocks of text
     each([
-      '.lede', '.split__text > p', '.source', '.steps__note', '.edge__text > p', '.proof__intro',
+      '.lede', '.split__text > p', '.source', '.edge__text > p', '.proof__intro',
       '.fit__text h3', '.fit__text p', '.note', '.target__lead', '.target__floor', '.econ h3', '.econ__sub',
-      '.calc__in', '.closing__actions', '.milestones h3', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
+      '.calc__in', '.closing__actions', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
     ].join(','), function (el) { mark(el, 'fade'); });
     mark(document.querySelector('.target__num'), 'rise');
 
     // members of a set are watched one by one, so tall sets (cards, phases, rows) react item by item
     each([
       '.figures', '.steps', '.safeguards', '.proof__list', '.plans', '.fit__table tbody',
-      '.outcomes', '.esg__cols', '.bars', '.calc__out', '.path', '.pressures', '.phases', '.milestones dl'
+      '.outcomes', '.esg__cols', '.bars', '.calc__out', '.faq__list'
     ].join(','), function (set) {
       Array.prototype.forEach.call(set.children, function (child) { mark(child, 'item'); });
     });
 
     // graphics that draw themselves
-    each('.timeline, .scale, .share', function (el) { mark(el, 'grow'); });
+    each('.scale, .share', function (el) { mark(el, 'grow'); });
 
     /* The "stage" is the viewport minus 8% at the top and 16% at the bottom.
        An element retracts as soon as it has fully left the stage, while it is still visible
@@ -256,6 +256,32 @@
     window.addEventListener('resize', requestScrub);
     scrub();
   })();
+
+  /* ---------- Solution boxes: hover shows the text (CSS); tap or keyboard toggles it ---------- */
+  var canHover = window.matchMedia('(hover: hover)');
+  document.querySelectorAll('.step').forEach(function (step) {
+    function toggle() {
+      var open = !step.classList.contains('is-open');
+      document.querySelectorAll('.step.is-open').forEach(function (s) { s.classList.remove('is-open'); });
+      step.classList.toggle('is-open', open);
+    }
+    step.addEventListener('click', function () { if (!canHover.matches) toggle(); });
+    step.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+    step.addEventListener('blur', function () { if (canHover.matches) step.classList.remove('is-open'); });
+  });
+
+  /* ---------- FAQ: each question opens and closes on its own ---------- */
+  document.querySelectorAll('.faq__item').forEach(function (item) {
+    var btn = item.querySelector('.faq__q button'), panel = item.querySelector('.faq__a');
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', String(open));
+      item.classList.toggle('is-open', open);
+      if (open) panel.removeAttribute('inert'); else panel.setAttribute('inert', '');   // closed answers stay out of tab order
+    });
+  });
 
   /* ---------- Calls to action: go to contact and highlight it ---------- */
   var contact = document.getElementById('contact');
