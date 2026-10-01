@@ -326,7 +326,8 @@ p { text-wrap: pretty; }
 .target__num { font-family: var(--serif); font-weight: 300; font-size: clamp(7rem, 17vw, 14rem); line-height: .8; letter-spacing: -.05em; color: var(--sky); }
 .target__lead { font-family: var(--serif); font-size: clamp(1.35rem, 2vw, 1.75rem); line-height: 1.35; color: var(--white); max-width: 30ch; }
 .scale { margin-top: 32px; max-width: 520px; }
-.target__note { margin-top: 16px; max-width: 52ch; font: .92rem/1.55 var(--sans); color: var(--on-dark-muted); }
+/* deliberately quiet: a dim slate blue that still clears 4.5:1 on navy */
+.target__note { margin-top: 16px; max-width: 52ch; font: .92rem/1.55 var(--sans); color: #7F94AE; }
 .scale__track { position: relative; height: 2px; background: var(--rule-dark); }
 .scale__range { position: absolute; top: -1px; height: 4px; left: calc(15 / 30 * 100%); width: calc(10 / 30 * 100%); background: rgba(107, 207, 237, .45); }
 .scale__mark { position: absolute; top: -6px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; }
