@@ -325,8 +325,8 @@ p { text-wrap: pretty; }
 .target { display: grid; grid-template-columns: auto 1fr; gap: clamp(32px, 6vw, 96px); align-items: center; padding-bottom: clamp(56px, 7vw, 88px); border-bottom: 1px solid var(--rule-dark); }
 .target__num { font-family: var(--serif); font-weight: 300; font-size: clamp(7rem, 17vw, 14rem); line-height: .8; letter-spacing: -.05em; color: var(--sky); }
 .target__lead { font-family: var(--serif); font-size: clamp(1.35rem, 2vw, 1.75rem); line-height: 1.35; color: var(--white); max-width: 30ch; }
-.target__floor { margin-top: 16px; color: var(--on-dark-muted); font-size: 1rem; max-width: 52ch; }
 .scale { margin-top: 32px; max-width: 520px; }
+.target__note { margin-top: 16px; max-width: 52ch; font: .92rem/1.55 var(--sans); color: var(--on-dark-muted); }
 .scale__track { position: relative; height: 2px; background: var(--rule-dark); }
 .scale__range { position: absolute; top: -1px; height: 4px; left: calc(15 / 30 * 100%); width: calc(10 / 30 * 100%); background: rgba(107, 207, 237, .45); }
 .scale__mark { position: absolute; top: -6px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; }
@@ -345,18 +345,6 @@ p { text-wrap: pretty; }
 .share span { display: flex; align-items: center; padding: 0 14px; }
 .share__owner { flex: 85; background: var(--sky); color: var(--night); border-radius: 3px 0 0 3px; }
 .share__airai { flex: 15; justify-content: center; padding: 0 !important; background: var(--white); color: var(--ink); border-radius: 0 3px 3px 0; }
-
-.econ { padding-top: clamp(48px, 6vw, 72px); border-top: 1px solid var(--rule-dark); }
-.econ h3 { font-size: 1.5rem; }
-.econ__sub { margin-top: 6px; color: var(--on-dark-muted); font-size: .95rem; }
-.bars { margin-top: 32px; display: grid; gap: 14px; max-width: 900px; }
-.bars__row { display: grid; grid-template-columns: 190px 1fr; gap: 20px; align-items: center; }
-.bars__row dt { font-size: .95rem; color: var(--on-dark-muted); }
-.bars__row dd { display: flex; align-items: center; gap: 16px; }
-.bars__bar { height: 22px; width: var(--v); background: rgba(107, 207, 237, .4); border-radius: 0 3px 3px 0; }
-.bars__row--key .bars__bar { background: var(--sky); }
-.bars__row--key dt { color: var(--white); }
-.bars__val { flex-shrink: 0; font-family: var(--serif); font-size: 1.2rem; color: var(--white); font-variant-numeric: lining-nums tabular-nums; }
 
 /* Estimator */
 .calc { display: grid; grid-template-columns: 5fr 7fr; margin-top: clamp(72px, 9vw, 120px); border-radius: 6px; overflow: hidden; background: var(--night-2); }
@@ -425,12 +413,12 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 /* Interface type: small functional text uses Schibsted Grotesk; reading text stays in Newsreader */
 .source, .figure__text, .fit__table, .plan__price, .plan__for, .plan__best, .res__label, .res__sub, .res__pair span,
 .field label, .field__help, .field__error, .field__unit, .choice legend, .choice span, .scale__labels,
-.bars__row dt, .econ__sub, .calc__foot, .share, .textlink, .footer__nav a,
-.footer__contact li, .footer__base, .target__floor, .outcome > p:not(.outcome__num), .proof__list li { font-family: var(--sans); }
+.calc__foot, .share, .textlink, .footer__nav a,
+.footer__contact li, .footer__base, .outcome > p:not(.outcome__num), .proof__list li { font-family: var(--sans); }
 .figure__text, .plan__for { font-size: .95rem; }
 .safeguards p, .fit__text p { font-size: 1.04rem; line-height: 1.6; }
 .fit__table thead th { font-family: var(--serif); }
-.target__floor, .outcome > p:not(.outcome__num), .proof__list li { font-size: .92rem; }
+.outcome > p:not(.outcome__num), .proof__list li { font-size: .92rem; }
 
 /* Color layer */
 
@@ -462,12 +450,10 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .fit__common { color: var(--amber-text); }
 
 /* Impact */
-.outcome:nth-child(2) .outcome__num { color: var(--green); }
-.outcome:nth-child(3) .outcome__num { color: var(--amber); }
+.outcome:nth-child(2) .outcome__num { color: var(--sky); }     /* electricity saved */
+.outcome:nth-child(3) .outcome__num { color: var(--green); }   /* carbon avoided */
 .share__airai { background: var(--amber); color: var(--night); }
 .scale__mark--floor { box-shadow: inset 0 0 0 2px var(--amber); }
-.bars__row--key .bars__bar { background: var(--green); }
-.bars__row--key .bars__val { color: var(--green); }
 
 /* Continuous flow
    The page reads as one background: every section starts in exactly the colour the previous
@@ -516,7 +502,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .esg__col li { font-size: .98rem; line-height: 1.55; color: var(--on-dark-muted); padding: 10px 0; border-bottom: 1px solid var(--rule-dark); }
 .esg__col li:last-child { border-bottom: 0; }
 .esg__col strong { color: var(--white); font-weight: 500; }
-.econ { border-top: 1px solid var(--rule-dark); }
 .calc__foot strong { color: var(--white); font-weight: 600; font-family: var(--sans); }
 
 /* About us: dark, continuing from the closing section into the footer */
@@ -644,7 +629,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   .safeguards { grid-template-columns: 1fr; }
   .proof__list { grid-template-columns: 1fr; }
   .target { grid-template-columns: 1fr; }
-  .bars__row { grid-template-columns: 1fr; gap: 8px; }
   .calc__out { grid-template-columns: 1fr; }
   .choice { grid-template-columns: 1fr; }
   .fit__table { font-size: .85rem; }
@@ -702,9 +686,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 [data-reveal="item"][data-side="above"]:not(.is-in) { transform: translateY(-40px); }
 
 /* graphics that draw themselves */
-.bars__bar { transform-origin: left; transition: transform 1.2s var(--ease) calc(var(--d, 0ms) + 200ms); }
-[data-reveal="item"]:not(.is-in) .bars__bar { transform: scaleX(0); transition: transform var(--out) var(--ease-in); }
-
 [data-reveal="grow"] .scale__range, [data-reveal="grow"] .share__owner, [data-reveal="grow"] .share__airai { transform-origin: left; transition: transform 1.1s var(--ease); }
 [data-reveal="grow"] .share__airai { transition-delay: .25s; }
 [data-reveal="grow"] .scale__mark { transition: transform .6s var(--ease) .75s; }

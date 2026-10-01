@@ -177,7 +177,7 @@
     // single blocks of text
     each([
       '.lede', '.split__text > p', '.source', '.edge__text > p', '.proof__intro',
-      '.fit__text h3', '.fit__text p', '.note', '.target__lead', '.target__floor', '.econ h3', '.econ__sub',
+      '.fit__text h3', '.fit__text p', '.note', '.target__lead', '.target__note',
       '.calc__in', '.closing__actions', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
     ].join(','), function (el) { mark(el, 'fade'); });
     mark(document.querySelector('.target__num'), 'rise');
@@ -185,7 +185,7 @@
     // members of a set are watched one by one, so tall sets (cards, phases, rows) react item by item
     each([
       '.figures', '.steps', '.safeguards', '.proof__list', '.plans', '.fit__table tbody',
-      '.outcomes', '.esg__cols', '.bars', '.calc__out', '.faq__list'
+      '.outcomes', '.esg__cols', '.calc__out', '.faq__list'
     ].join(','), function (set) {
       Array.prototype.forEach.call(set.children, function (child) { mark(child, 'item'); });
     });
@@ -458,8 +458,10 @@
     var total = flow.reduce(function (a, b) { return a + b; }, 0) / g.n;
     ctx.fillStyle = 'rgba(107,207,237,' + (0.35 + 0.5 * total).toFixed(2) + ')';
     var step = g.fh * 0.5, off = reduceMotion ? 0 : (t / 30) % step;
+    var dash = step * 0.45 * (0.4 + total);
     for (var sy = g.roof + off; sy < g.ground; sy += step) {
-      ctx.fillRect(g.bx + g.shaft / 2 - 1, sy, 2, step * 0.45 * (0.4 + total));
+      // clip the last dash at ground level so it never runs below the building
+      ctx.fillRect(g.bx + g.shaft / 2 - 1, sy, 2, Math.min(dash, g.ground - sy));
     }
 
     // airflow streaks
