@@ -14,8 +14,8 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/schibstedgrotesk-normal-latin.woff2" crossorigin>
   <link rel="preload" as="image" href="img/hero.jpg">
   <!-- ?v= forces browsers to fetch fresh files after an update; bump it whenever css/ or js/ changes -->
-  <link rel="stylesheet" href="css/fonts.css?v=20261001">
-  <link rel="stylesheet" href="css/styles.css?v=20261001">
+  <link rel="stylesheet" href="css/fonts.css?v=20261002d">
+  <link rel="stylesheet" href="css/styles.css?v=20261002d">
   <script>
     document.documentElement.classList.add('js');
     // apply a saved language choice before first paint, so the right fonts load straight away
@@ -225,11 +225,13 @@
         <div class="plan__body">
           <h3 id="lite-title" class="plan__name">AirAI Lite</h3>
           <p class="plan__for" data-i18n="lite.for">For buildings with a write-capable BMS</p>
-          <p class="plan__price" data-i18n="lite.price"><span class="plan__num">0 VND</span> upfront. AirAI covers the installation.</p>
+          <div class="plan__price">
+            <p data-i18n="lite.price"><span class="plan__num">0 VND</span> upfront. AirAI covers the installation.</p>
+            <p class="plan__then" data-i18n="lite.then">Then 300,000 VND per zone per month, plus 15% of verified savings.</p>
+          </div>
           <ul class="plan__list">
             <li data-i18n="lite.l1">Software only, no physical installation</li>
             <li data-i18n="lite.l2">Fastest to deploy</li>
-            <li data-i18n="lite.l3">300,000 VND per zone per month, plus 15% of verified savings</li>
           </ul>
           <p class="plan__best" data-i18n="lite.best"><strong>Best for</strong> buildings with working sensors and actuators that only need the AI decision layer.</p>
         </div>
@@ -240,10 +242,12 @@
         <div class="plan__body">
           <h3 id="full-title" class="plan__name">AirAI Full</h3>
           <p class="plan__for" data-i18n="full.for">For buildings without a write-capable BMS, most of the market</p>
-          <p class="plan__price" data-i18n="full.price"><span class="plan__num">218.75M</span> VND one-time setup fee, half the installation cost. AirAI covers the rest.</p>
+          <div class="plan__price">
+            <p data-i18n="full.price"><span class="plan__num">218.75M</span> VND one-time setup fee, half the installation cost. AirAI covers the rest.</p>
+            <p class="plan__then" data-i18n="full.then">Then 800,000 VND per zone per month, plus 15% of verified savings.</p>
+          </div>
           <ul class="plan__list">
             <li data-i18n="full.l1">Adds the sensor and actuator layer most AI-building projects skip</li>
-            <li data-i18n="full.l2">800,000 VND per zone per month, plus 15% of verified savings</li>
           </ul>
           <p class="plan__best" data-i18n="full.best"><strong>Best for</strong> most of Hanoi’s Grade A/B offices, which software-only competitors can’t reach.</p>
         </div>
@@ -451,6 +455,67 @@
 </main>
 
 <footer class="footer">
+  <!-- Contact form. data-key: Web3Forms access key (emails each message; public by design).
+       data-sheet: Google Apps Script web app URL (adds each message to the "AirAI website enquiries"
+       sheet). Either can be empty; with both empty, Send asks visitors to email us instead. -->
+  <section class="wrap contact" aria-labelledby="contact-title">
+    <div class="contact__intro">
+      <h2 id="contact-title" class="contact__title" data-i18n="form.title">Partner with AirAI.</h2>
+      <p class="contact__text" data-i18n="form.text">Building owners, investors and city partners: leave us a note and we’ll get back to you.</p>
+      <p class="contact__alt"><span data-i18n="form.alt">Prefer email?</span> <a href="mailto:hello.airai.vn@gmail.com">hello.airai.vn@gmail.com</a></p>
+    </div>
+
+    <div class="contact__card" id="contact" tabindex="-1">
+      <form class="contact__form" novalidate data-key="046f0784-3562-49bc-9953-eab8714e2bf1" data-sheet="">
+        <div class="cf">
+          <label for="cf-name"><span data-i18n="form.name">Name</span> <span class="cf__req" aria-hidden="true">*</span></label>
+          <input id="cf-name" name="name" type="text" autocomplete="name" required aria-describedby="cf-name-err">
+          <p class="cf__err" id="cf-name-err" hidden></p>
+        </div>
+        <div class="cf">
+          <label for="cf-email"><span data-i18n="form.email">Email</span> <span class="cf__req" aria-hidden="true">*</span></label>
+          <input id="cf-email" name="email" type="email" autocomplete="email" required aria-describedby="cf-email-err">
+          <p class="cf__err" id="cf-email-err" hidden></p>
+        </div>
+        <div class="cf">
+          <label for="cf-role" data-i18n="form.role">I am a</label>
+          <select id="cf-role" name="role">
+            <option value="" data-i18n="form.roleChoose">Choose one</option>
+            <option value="Building owner or manager" data-i18n="form.roleOwner">Building owner or manager</option>
+            <option value="Investor" data-i18n="form.roleInvestor">Investor</option>
+            <option value="BMS integrator" data-i18n="form.roleIntegrator">BMS integrator</option>
+            <option value="City or PropTech partner" data-i18n="form.roleCity">City or PropTech partner</option>
+            <option value="Other" data-i18n="form.roleOther">Other</option>
+          </select>
+        </div>
+        <div class="cf">
+          <label for="cf-org"><span data-i18n="form.org">Organisation</span> <span class="cf__opt" data-i18n="form.optional">optional</span></label>
+          <input id="cf-org" name="organisation" type="text" autocomplete="organization">
+        </div>
+        <div class="cf cf--wide">
+          <label for="cf-area"><span data-i18n="form.area">Building floor area (m²)</span> <span class="cf__opt" data-i18n="form.optional">optional</span></label>
+          <input id="cf-area" name="floor_area" type="number" inputmode="numeric" min="0" step="100" aria-describedby="cf-area-hint">
+          <p class="cf__hint" id="cf-area-hint" data-i18n="form.areaHint">Helps us prepare a rough estimate before our first call.</p>
+        </div>
+        <div class="cf cf--wide">
+          <label for="cf-message"><span data-i18n="form.message">Message</span> <span class="cf__req" aria-hidden="true">*</span></label>
+          <textarea id="cf-message" name="message" rows="5" required aria-describedby="cf-message-err"></textarea>
+          <p class="cf__err" id="cf-message-err" hidden></p>
+        </div>
+        <input class="cf__hp" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="contact__actions cf--wide">
+          <button class="btn btn--sky" type="submit" data-i18n="form.send">Get in touch</button>
+          <p class="contact__status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+
+      <div class="contact__done" hidden tabindex="-1">
+        <h3 data-i18n="form.doneTitle">Thank you.</h3>
+        <p data-i18n="form.doneText">Your message is on its way. The AirAI team will get back to you soon.</p>
+      </div>
+    </div>
+  </section>
+
   <div class="wrap footer__grid">
     <div class="footer__about">
       <img class="footer__logo" src="img/airai-logo-light.png" alt="AirAI, intelligent air, better living" data-i18n-attr="alt:footer.logo" width="640" height="286" loading="lazy">
@@ -468,7 +533,7 @@
       </ul>
     </nav>
 
-    <div class="footer__contact" id="contact" tabindex="-1">
+    <div class="footer__contact">
       <h2 class="footer__h" data-i18n="footer.contact">Get in touch</h2>
       <ul>
         <li><svg class="ico" aria-hidden="true"><use href="#i-mail"/></svg><a href="mailto:hello.airai.vn@gmail.com">hello.airai.vn@gmail.com</a></li>
@@ -483,7 +548,7 @@
   </div>
 </footer>
 
-<script src="js/i18n.js?v=20261001" defer></script>
-<script src="js/main.js?v=20261001" defer></script>
+<script src="js/i18n.js?v=20261002d" defer></script>
+<script src="js/main.js?v=20261002d" defer></script>
 </body>
 </html>

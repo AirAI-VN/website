@@ -178,7 +178,7 @@
     each([
       '.lede', '.split__text > p', '.source', '.edge__text > p', '.proof__intro',
       '.fit__text h3', '.fit__text p', '.note', '.target__lead', '.target__note',
-      '.calc__in', '.closing__actions', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
+      '.calc__in', '.closing__actions', '.contact__intro', '.contact__card', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
     ].join(','), function (el) { mark(el, 'fade'); });
     mark(document.querySelector('.target__num'), 'rise');
 
@@ -283,6 +283,111 @@
     });
   });
 
+  /* ---------- Contact form, delivered by Web3Forms ----------
+     The access key lives in data-key on the form. Without it, Send asks visitors to email us.
+     Messages and errors are stored as i18n keys so they re-translate on a language switch. */
+  var form = document.querySelector('.contact__form');
+  if (form) {
+    var statusEl = form.querySelector('.contact__status');
+    var sendBtn = form.querySelector('button[type="submit"]');
+    var doneEl = document.querySelector('.contact__done');
+    var REQUIRED = [['cf-name', 'form.errName'], ['cf-email', 'form.errEmail'], ['cf-message', 'form.errMessage']];
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function setError(input, key) {
+      var err = document.getElementById(input.id + '-err');
+      input.setAttribute('aria-invalid', String(!!key));
+      if (!err) return;
+      err.setAttribute('data-msg', key || '');
+      err.textContent = key ? T(key) : '';
+      err.hidden = !key;
+    }
+    function setStatus(key, tone) {
+      statusEl.setAttribute('data-msg', key || '');
+      statusEl.setAttribute('data-tone', tone || '');
+      statusEl.textContent = key ? T(key) : '';
+    }
+    function validate() {
+      var first = null;
+      REQUIRED.forEach(function (pair) {
+        var el = document.getElementById(pair[0]), v = el.value.trim();
+        var bad = !v || (el.type === 'email' && !EMAIL_RE.test(v));
+        setError(el, bad ? pair[1] : null);
+        if (bad && !first) first = el;
+      });
+      return first;
+    }
+
+    // clear a field's error as soon as the visitor fixes it
+    form.addEventListener('input', function (e) {
+      if (e.target.getAttribute('aria-invalid') === 'true') setError(e.target, null);
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var first = validate();
+      if (first) { first.focus(); return; }
+      if (form.elements.botcheck.checked) return;               // a bot filled the hidden box
+
+      // Two destinations, both optional: Web3Forms emails the message (data-key) and a
+      // Google Apps Script web app adds it as a row to the enquiries sheet (data-sheet).
+      var key = form.getAttribute('data-key'), sheetUrl = form.getAttribute('data-sheet');
+      if (!key && !sheetUrl) { setStatus('form.notConnected', 'warn'); return; }
+
+      function val(id) { return document.getElementById(id).value.trim(); }
+      var fields = {
+        name: val('cf-name'), email: val('cf-email'), role: val('cf-role'),
+        organisation: val('cf-org'), floor_area_m2: val('cf-area'), message: val('cf-message')
+      };
+      var sends = [];
+      if (key) {
+        var mail = { access_key: key, subject: 'New enquiry from the AirAI website', from_name: 'AirAI website' };
+        Object.keys(fields).forEach(function (k) { mail[k] = fields[k]; });
+        sends.push(fetch('https://api.web3forms.com/submit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(mail)
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            // Web3Forms' own reply, kept in the console to diagnose delivery problems
+            if (window.console) console.info('Web3Forms:', res.success, res.message);
+            if (!res.success) throw new Error('Web3Forms: ' + (res.message || 'failed'));
+          }));
+      }
+      if (sheetUrl) {
+        fields.lang = document.documentElement.lang;
+        // text/plain keeps this a "simple" request (no CORS preflight, which Apps Script can't answer);
+        // the reply is opaque, so a network error is the only failure we can see
+        sends.push(fetch(sheetUrl, {
+          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(fields)
+        }));
+      }
+
+      sendBtn.disabled = true;
+      setStatus('form.sending');
+      Promise.allSettled(sends).then(function (results) {
+        results.forEach(function (r) {
+          if (r.status === 'rejected' && window.console) console.warn('Contact form:', r.reason && r.reason.message);
+        });
+        if (results.some(function (r) { return r.status === 'fulfilled'; })) {
+          setStatus(null);
+          form.hidden = true;
+          doneEl.hidden = false;
+          doneEl.focus();
+        } else {
+          setStatus('form.error', 'err');
+        }
+        sendBtn.disabled = false;
+      });
+    });
+
+    document.addEventListener('langchange', function () {
+      form.querySelectorAll('[data-msg]').forEach(function (el) {
+        var k = el.getAttribute('data-msg');
+        if (k) el.textContent = T(k);
+      });
+    });
+  }
+
   /* ---------- Calls to action: go to contact and highlight it ---------- */
   var contact = document.getElementById('contact');
   document.querySelectorAll('[data-contact]').forEach(function (link) {
@@ -290,8 +395,10 @@
       e.preventDefault();
       history.replaceState(null, '', '#contact');
       slowScrollTo(function () {
-        var r = contact.getBoundingClientRect();
-        return r.top + window.scrollY - (window.innerHeight - r.height) / 2;   // centre the block
+        var r = contact.getBoundingClientRect(), top = r.top + window.scrollY;
+        var offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        // centre the form card, or align its top under the nav when it is taller than the screen
+        return r.height > window.innerHeight - offset - 40 ? top - offset - 16 : top - (window.innerHeight - r.height) / 2;
       }, function () {
         contact.focus({ preventScroll: true });
         contact.classList.add('is-flash');
