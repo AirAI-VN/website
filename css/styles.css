@@ -147,12 +147,13 @@ p { text-wrap: pretty; }
 .nav__toggle { display: none; width: 44px; height: 44px; place-items: center; border: 0; border-radius: 50%; background: none; color: var(--white); cursor: pointer; }
 .nav__toggle .ico { width: 24px; height: 24px; }
 
-/* Hero: one photograph, tinted, headline lower left */
+/* Hero: a looping wireframe-tower video, lightly tinted, headline lower left */
 .hero {
   position: relative; min-height: clamp(640px, 100svh, 1040px); display: flex; align-items: flex-end;
   padding: 140px 0 clamp(110px, 18vh, 200px); overflow: hidden; background: var(--night); color: var(--white);
 }
-.hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; animation: settle 2.6s var(--ease) both; }
+.hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 50%; animation: settle 2.6s var(--ease) both;
+  filter: brightness(1.35); }   /* the footage is very dark; brighten it here rather than re-encode (also applies to the poster) */   /* 58%: the tower sits right of centre, so narrow screens crop towards it */
 @keyframes settle { from { transform: scale(1.08); } to { transform: none; } }
 .hero__shade {
   position: absolute; inset: 0; pointer-events: none;
@@ -162,7 +163,7 @@ p { text-wrap: pretty; }
 }
 .hero__content { position: relative; }
 .hero .hero__title {
-  color: var(--white); font-weight: 500; font-size: clamp(2.7rem, 6vw, 5.8rem);
+  color: var(--white); font-weight: 500; font-size: clamp(2.7rem, 5vw, 4.5rem);
   line-height: 1.03; letter-spacing: -.024em; max-width: none; text-wrap: initial;
   text-shadow: 0 2px 30px rgba(15, 30, 53, .35);
 }
@@ -492,9 +493,10 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 /* hero photo melts into the navy below; closing photo rises out of navy and sinks back into it */
 .hero__shade {
   background:
-    linear-gradient(180deg, rgba(15, 30, 53, .5) 0%, rgba(15, 30, 53, .3) 38%, rgba(15, 30, 53, .5) 60%,
-                    rgba(15, 30, 53, .74) 76%, rgba(15, 30, 53, .9) 88%, rgba(15, 30, 53, .97) 95%, var(--night) 100%),
-    linear-gradient(90deg, rgba(15, 30, 53, .5) 0%, rgba(15, 30, 53, 0) 72%);
+    /* the video is already dark, so only the bottom melt into navy and a light left wash behind the headline */
+    linear-gradient(180deg, rgba(15, 30, 53, .2) 0%, rgba(15, 30, 53, 0) 30%, rgba(15, 30, 53, .2) 60%,
+                    rgba(15, 30, 53, .6) 78%, rgba(15, 30, 53, .88) 90%, rgba(15, 30, 53, .97) 96%, var(--night) 100%),
+    linear-gradient(90deg, rgba(15, 30, 53, .45) 0%, rgba(15, 30, 53, 0) 60%);
 }
 .closing { padding-top: calc(var(--band) + 120px); }
 .closing::before {
@@ -583,11 +585,18 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .contact__alt a { color: var(--white); text-decoration: none; background: linear-gradient(var(--sky), var(--sky)) 0 100% / 100% 1px no-repeat; }
 .contact__alt a:hover { color: var(--sky); }
 .contact__card {
-  padding: clamp(24px, 3.5vw, 44px); border-radius: 10px; background: var(--night-2);
-  border: 1px solid var(--rule-dark); transition: box-shadow .5s, border-color .5s;
+  position: relative; padding: clamp(24px, 3.5vw, 44px); border-radius: 10px; background: var(--night-2);
+  border: 1px solid var(--rule-dark);
 }
 .contact__card:focus { outline: none; }
-.contact__card.is-flash { border-color: var(--sky); box-shadow: 0 0 0 4px rgba(107, 207, 237, .15); }
+/* The arrival highlight lives on its own layer: the scroll-reveal sets the card's transition,
+   so animating the card itself would make the highlight switch off abruptly. In quickly, out slowly. */
+.contact__card::after {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+  border: 1px solid var(--sky); box-shadow: 0 0 0 4px rgba(107, 207, 237, .15), 0 0 40px rgba(107, 207, 237, .12);
+  opacity: 0; transition: opacity 1.4s ease;
+}
+.contact__card.is-flash::after { opacity: 1; transition-duration: .4s; }
 .contact__form { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 20px; }
 /* the display rules above would otherwise override the hidden attribute after sending */
 .contact__form[hidden], .contact__done[hidden] { display: none; }
@@ -629,6 +638,8 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 .footer > .footer__grid::before { content: ""; position: absolute; top: 0; left: var(--gutter); right: var(--gutter); border-top: 1px solid var(--rule-dark); }
 .footer__grid { display: grid; grid-template-columns: 6fr 2fr 4fr; gap: clamp(40px, 6vw, 96px); }
 .footer__logo { width: 190px; margin-bottom: 28px; }
+.footer__powered { display: flex; align-items: center; gap: 12px; margin-top: -8px; font: .85rem var(--sans); color: var(--on-dark-muted); }
+.footer__powered img { height: 30px; width: auto; }
 .footer__about p { font-size: .95rem; max-width: 52ch; }
 .footer__about p + p { margin-top: 14px; color: var(--on-dark); }
 .footer__h { margin-bottom: 18px; font: 600 .95rem var(--sans); color: var(--white); }
@@ -738,9 +749,6 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 }
 [data-reveal="words"][data-side="above"]:not(.is-in) .w__i { transform: translateY(-108%); }
 
-/* photos: scroll-linked mask set by JS (--clip-t / --clip-b / --zoom), no timed transition to lag or jump */
-[data-scrub] { clip-path: inset(var(--clip-t, 0%) 0 var(--clip-b, 0%) 0 round 4px); will-change: clip-path; }
-[data-scrub] img { transform: scale(var(--zoom, 1)); transform-origin: 50% 50%; will-change: transform; }
 
 /* items of a set: each is watched on its own; JS staggers those that arrive together via --d */
 [data-reveal="item"] {

@@ -8,14 +8,14 @@
   <meta name="theme-color" content="#0F1E35">
   <meta property="og:title" content="AirAI | Intelligent air. Better living.">
   <meta property="og:description" content="Predictive control that closes the loop from sensing to equipment, built for Hanoi’s office buildings.">
-  <meta property="og:image" content="img/hero.jpg">
+  <meta property="og:image" content="img/hero-poster.jpg">
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="preload" as="font" type="font/woff2" href="fonts/newsreader-normal-latin.woff2" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="fonts/schibstedgrotesk-normal-latin.woff2" crossorigin>
-  <link rel="preload" as="image" href="img/hero.jpg">
+  <link rel="preload" as="image" href="img/hero-poster.jpg">
   <!-- ?v= forces browsers to fetch fresh files after an update; bump it whenever css/ or js/ changes -->
-  <link rel="stylesheet" href="css/fonts.css?v=20261002d">
-  <link rel="stylesheet" href="css/styles.css?v=20261002d">
+  <link rel="stylesheet" href="css/fonts.css?v=20261005e">
+  <link rel="stylesheet" href="css/styles.css?v=20261005e">
   <script>
     document.documentElement.classList.add('js');
     // apply a saved language choice before first paint, so the right fonts load straight away
@@ -71,7 +71,8 @@
 
 <!-- Hero -->
 <section class="hero" id="top" aria-labelledby="hero-title">
-  <img class="hero__img" src="img/hero.jpg" alt="" width="2200" height="1467">
+  <!-- muted + playsinline let it autoplay on phones; the poster shows until it plays, and for reduced motion -->
+  <video class="hero__img" src="video/hero.mp4" poster="img/hero-poster.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true" width="1920" height="1038"></video>
   <div class="hero__shade" aria-hidden="true"></div>
   <div class="wrap hero__content">
     <h1 id="hero-title" class="hero__title" data-i18n="hero.title">The <span class="c-sky">AI layer</span><br> between <span class="c-amber">your BMS</span> and<br> <span class="c-amber">your electricity bill</span></h1>
@@ -519,6 +520,7 @@
   <div class="wrap footer__grid">
     <div class="footer__about">
       <img class="footer__logo" src="img/airai-logo-light.png" alt="AirAI, intelligent air, better living" data-i18n-attr="alt:footer.logo" width="640" height="286" loading="lazy">
+      <p class="footer__powered"><span data-i18n="footer.powered">Powered by</span> <img src="img/fpt-ai-logo.png" alt="FPT AI" width="360" height="131" loading="lazy"></p>
     </div>
 
     <nav class="footer__nav" aria-label="Footer" data-i18n-attr="aria-label:footer.aria">
@@ -548,7 +550,7 @@
   </div>
 </footer>
 
-<script src="js/i18n.js?v=20261002d" defer></script>
-<script src="js/main.js?v=20261002d" defer></script>
+<script src="js/i18n.js?v=20261005e" defer></script>
+<script src="js/main.js?v=20261005e" defer></script>
 </body>
 </html>

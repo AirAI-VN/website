@@ -204,6 +204,7 @@
     'form.doneText': 'Tin nhắn của bạn đã được gửi. Đội ngũ AirAI sẽ sớm liên hệ lại.',
 
     'footer.logo': 'AirAI, không khí thông minh, cuộc sống tốt hơn',
+    'footer.powered': 'Được hỗ trợ bởi',
     'footer.aria': 'Chân trang',
     'footer.explore': 'Khám phá',
     'footer.about': 'Về chúng tôi',

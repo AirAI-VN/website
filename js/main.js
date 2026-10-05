@@ -77,6 +77,7 @@
   }
   function slowScrollTo(getY, done) {
     stopScroll();
+    stopGlide();
     function dest() { return Math.max(0, Math.min(getY(), document.documentElement.scrollHeight - window.innerHeight)); }
     var from = window.scrollY, to = dest();
     if (reduceMotion || Math.abs(to - from) < 2) {
@@ -103,6 +104,52 @@
     window.addEventListener(type, stopScroll, { passive: true });
   });
 
+  /* Gliding wheel scroll: each mouse-wheel notch moves a target position, and the page eases
+     toward it every frame, so scrolling glides and settles instead of jumping in steps.
+     Only for wheel mice: touchpads and touch screens already scroll smoothly and keep their
+     native feel, as do keyboard scrolling, scrollbar dragging and reduced-motion visitors. */
+  var GLIDE = 0.1;            // share of the remaining distance covered per 60 fps frame
+  var glideAnim = 0, glideTarget = 0, glidePos = 0, glideLast = 0;
+
+  function stopGlide() {
+    if (glideAnim) cancelAnimationFrame(glideAnim);
+    glideAnim = 0;
+  }
+  function maxScroll() { return document.documentElement.scrollHeight - window.innerHeight; }
+  // a wheel mouse sends whole notches (about 100 px, or "lines"); a touchpad sends many small deltas
+  function isMouseWheel(e) { return e.deltaMode === 1 || (Math.abs(e.deltaY) >= 50 && e.deltaY % 1 === 0); }
+  // leave the wheel alone inside anything that scrolls on its own (message box, open menu)
+  function insideScroller(el, dy) {
+    for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      var oy = getComputedStyle(el).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) {
+        if ((dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) || (dy < 0 && el.scrollTop > 0)) return true;
+      }
+    }
+    return false;
+  }
+  function glideStep(now) {   // (not "glide": that name is the nav highlight element above)
+    // the first frame's timestamp can predate the wheel event, so never step backwards in time
+    var dt = glideLast ? Math.max(0, Math.min(64, now - glideLast)) : 16.67; glideLast = now;
+    // someone else moved the page (scrollbar, keyboard, a link): hand control back
+    if (Math.abs(window.scrollY - Math.round(glidePos)) > 2) { stopGlide(); return; }
+    glidePos += (glideTarget - glidePos) * (1 - Math.pow(1 - GLIDE, dt / 16.67));
+    if (Math.abs(glideTarget - glidePos) < 0.5) glidePos = glideTarget;
+    window.scrollTo({ top: glidePos, behavior: 'instant' });
+    glideAnim = glidePos === glideTarget ? 0 : requestAnimationFrame(glideStep);
+  }
+  if (!reduceMotion) {
+    window.addEventListener('wheel', function (e) {
+      if (e.defaultPrevented || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;   // zoom, sideways
+      if (!isMouseWheel(e) || insideScroller(e.target, e.deltaY)) return;
+      e.preventDefault();
+      if (!glideAnim) { glidePos = glideTarget = window.scrollY; glideLast = 0; }
+      var dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaY;
+      glideTarget = Math.max(0, Math.min(maxScroll(), glideTarget + dy));
+      if (!glideAnim) glideAnim = requestAnimationFrame(glideStep);
+    }, { passive: false });
+  }
+
   function sectionTop(el) {
     var offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
     return el.getBoundingClientRect().top + window.scrollY - offset;
@@ -128,6 +175,21 @@
     placeGlide();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeGlide);
   });
+
+  /* ---------- Hero video ----------
+     Reduced motion: stay on the poster frame. Otherwise pause while the hero is off screen. */
+  var heroVideo = document.querySelector('.hero__img');
+  if (heroVideo && heroVideo.tagName === 'VIDEO') {
+    if (reduceMotion) {
+      heroVideo.removeAttribute('autoplay');
+      heroVideo.pause();
+    } else if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) { var p = heroVideo.play(); if (p && p.catch) p.catch(function () {}); }
+        else heroVideo.pause();
+      }).observe(heroVideo);
+    }
+  }
 
   /* ---------- Scroll reveal, played in both directions ----------
      Elements animate in as they enter the viewport and retract as they leave it.
@@ -228,33 +290,7 @@
       });
     });
 
-    /* Photos are scroll-linked rather than timed: how much of each photo is revealed is a
-       direct function of where it sits on screen, so it cannot lag, jump or glitch when the
-       scroll direction changes. */
-    var photos = Array.prototype.slice.call(document.querySelectorAll('.split__photo, .edge__photo'));
-    photos.forEach(function (p) { p.setAttribute('data-scrub', ''); });
-    function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
-    function smooth(v) { return v * v * (3 - 2 * v); }
-    var pending = false;
-    function scrub() {
-      pending = false;
-      var vh = window.innerHeight;
-      photos.forEach(function (p) {
-        var r = p.getBoundingClientRect();
-        if (r.bottom < -vh || r.top > vh * 2) return;               // far off screen: nothing to update
-        // the mask always opens from the edge that is on screen: the top edge while the photo rises
-        // into view, and it gives way from the top again as the photo leaves through the top
-        var enter = smooth(clamp01((vh - r.top) / (vh * 0.55)));
-        var leave = smooth(clamp01(r.bottom / (vh * 0.45)));
-        p.style.setProperty('--clip-b', ((1 - enter) * 100).toFixed(2) + '%');
-        p.style.setProperty('--clip-t', ((1 - leave) * 100).toFixed(2) + '%');
-        p.style.setProperty('--zoom', (1 + 0.12 * (1 - Math.min(enter, leave))).toFixed(4));
-      });
-    }
-    function requestScrub() { if (!pending) { pending = true; requestAnimationFrame(scrub); } }
-    window.addEventListener('scroll', requestScrub, { passive: true });
-    window.addEventListener('resize', requestScrub);
-    scrub();
+    // the two section photos (rooftop units, ducts) stay still: the user removed their scroll animation
   })();
 
   /* ---------- Solution boxes: hover shows the text (CSS); tap or keyboard toggles it ---------- */
