@@ -233,12 +233,12 @@
     });
     document.querySelector('.hero h1').setAttribute('data-delay', 350);   // let the photo settle first
 
-    // Problem opener and the Solution demo
-    each('.opener__lede, .opener__actions, .demo', function (el) { mark(el, 'fade'); });
+    // Problem opener
+    each('.opener__lede, .opener__actions', function (el) { mark(el, 'fade'); });
 
     // single blocks of text
     each([
-      '.lede', '.split__text > p', '.source', '.edge__text > p', '.proof__intro',
+      '.lede', '.split__text > p', '.source', '.meter', '.edge__text > p', '.proof__intro',
       '.fit__text h3', '.fit__text p', '.note', '.target__lead', '.target__note',
       '.calc__in', '.closing__actions', '.contact__intro', '.contact__card', '.footer__about', '.footer__nav', '.about__text p', '.about__photo'
     ].join(','), function (el) { mark(el, 'fade'); });
@@ -246,7 +246,7 @@
 
     // members of a set are watched one by one, so tall sets (cards, phases, rows) react item by item
     each([
-      '.figures', '.steps', '.safeguards', '.proof__list', '.plans', '.fit__table tbody',
+      '.figures', '.safeguards', '.proof__list', '.plans', '.fit__table tbody',
       '.outcomes', '.esg__cols', '.calc__out', '.faq__list'
     ].join(','), function (set) {
       Array.prototype.forEach.call(set.children, function (child) { mark(child, 'item'); });
@@ -293,20 +293,75 @@
     // the two section photos (rooftop units, ducts) stay still: the user removed their scroll animation
   })();
 
-  /* ---------- Solution boxes: hover shows the text (CSS); tap or keyboard toggles it ---------- */
-  var canHover = window.matchMedia('(hover: hover)');
-  document.querySelectorAll('.step').forEach(function (step) {
-    function toggle() {
-      var open = !step.classList.contains('is-open');
-      document.querySelectorAll('.step.is-open').forEach(function (s) { s.classList.remove('is-open'); });
-      step.classList.toggle('is-open', open);
+  /* ---------- Figures count up from 0, once ----------
+     The first time a display number comes into view, every number inside it (both ends of
+     "15 to 25%", the 218.75 of "218.75M") runs up from 0 while its block fades in. After that it
+     only fades in and out like other text. Numbers are read and written in the page's language
+     (105.9 / 2,990 in English, 105,9 / 2.990 in Vietnamese). The estimator and live meter are left out. */
+  (function () {
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+    var COUNT_MS = 1600;
+    var running = [];
+
+    function seps() { return isVi() ? { dec: ',', group: '.' } : { dec: '.', group: ',' }; }
+    function tokenRe(s) {
+      var g = '\\' + s.group, d = '\\' + s.dec;
+      return new RegExp('\\d{1,3}(?:' + g + '\\d{3})+(?:' + d + '\\d+)?|\\d+(?:' + d + '\\d+)?', 'g');
     }
-    step.addEventListener('click', function () { if (!canHover.matches) toggle(); });
-    step.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    // turn "2,990" into { value: 2990, decimals: 0, grouped: true }
+    function parse(token, s) {
+      var parts = token.split(s.dec);
+      return { value: parseFloat(parts[0].split(s.group).join('') + (parts[1] ? '.' + parts[1] : '')),
+               decimals: parts[1] ? parts[1].length : 0, grouped: token.indexOf(s.group) > -1 };
+    }
+    function format(v, n, s) {
+      var str = v.toFixed(n.decimals), p = str.split('.');
+      if (n.grouped) p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, s.group);
+      return p[0] + (p[1] ? s.dec + p[1] : '');
+    }
+
+    function count(el) {
+      var s = seps(), re = tokenRe(s), text = el.textContent;
+      var nums = (text.match(re) || []).map(function (t) { return parse(t, s); });
+      if (!nums.some(function (n) { return n.value > 0; })) return;   // e.g. "0 VND": nothing to count
+      var job = { el: el, stopped: false };
+      running.push(job);
+      var t0 = performance.now() + 150;   // let the block start fading in first
+      function finish() {
+        if (job.stopped) return;
+        job.stopped = true;
+        el.textContent = text;
+        running.splice(running.indexOf(job), 1);
+      }
+      function frame(now) {
+        if (job.stopped) return;
+        var p = Math.min(1, Math.max(0, (now - t0) / COUNT_MS)), e = 1 - Math.pow(1 - p, 3);   // ease out
+        if (p >= 1) { finish(); return; }
+        var i = 0;
+        el.textContent = text.replace(re, function () { var n = nums[i++]; return format(n.value * e, n, s); });
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      // backstop: animation frames pause in hidden tabs, so make sure the exact figure always lands
+      setTimeout(finish, COUNT_MS + 600);
+    }
+
+    // a language switch rewrites these numbers; stop any count in flight so it can't overwrite them
+    document.addEventListener('langchange', function () {
+      running.forEach(function (job) { job.stopped = true; });
+      running = [];
     });
-    step.addEventListener('blur', function () { if (canHover.matches) step.classList.remove('is-open'); });
-  });
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        count(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px' });
+    document.querySelectorAll('.figure__num, .proof__num, .plan__num, .target__num, .outcome__num')
+      .forEach(function (el) { io.observe(el); });
+  })();
 
   /* ---------- FAQ: each question opens and closes on its own ---------- */
   document.querySelectorAll('.faq__item').forEach(function (item) {
@@ -446,6 +501,24 @@
   /* ---------- Savings estimator ---------- */
   var EUI = 105.9, HVAC_SHARE = 0.55, PRICE = 4000, GRID = 0.6592, FX = 25000, GAIN = 0.15;
   var AREA_MIN = 1000, AREA_MAX = 100000, REF_AREA = 15000;
+
+  /* ---------- Live HVAC meter (Problem section) ----------
+     What the reference building spends on HVAC, accrued since the page started loading:
+     15,000 m² x 105.9 kWh/m² a year x 55% x 4,000 VND/kWh = about 3.49 billion VND a year,
+     spread evenly over the year (about 111 VND a second). The value comes from elapsed time, so it
+     is always right; a 50 ms timer (not animation frames, which some browsers pause) redraws it. */
+  var meterVal = document.getElementById('meterVal');
+  if (meterVal) {
+    var METER_RATE = REF_AREA * EUI * HVAC_SHARE * PRICE / (365 * 24 * 3600);
+    var meterShown = '';
+    var tickMeter = function () {
+      var text = num(Math.floor(performance.now() / 1000 * METER_RATE), 0);   // num() follows the language
+      if (text !== meterShown) { meterVal.textContent = text; meterShown = text; }
+    };
+    tickMeter();
+    setInterval(tickMeter, 50);
+    document.addEventListener('langchange', tickMeter);
+  }
   var area = document.getElementById('area');
   var areaRange = document.getElementById('areaRange');
   var areaErr = document.getElementById('area-err');
@@ -503,203 +576,4 @@
     calc();
   });
   calc();
-
-  /* ---------- Hero: building cross-section with airflow ---------- */
-  var canvas = document.getElementById('building');
-  if (!canvas || !canvas.getContext) return;
-  var ctx = canvas.getContext('2d');
-
-  // Illustrative occupancy per floor, top floor first. Four floors are empty.
-  var OCC = [0.85, 0, 0.4, 1, 0, 0.6, 0.15, 0, 0.9];
-  var MIN_AIR = 0.05; // fresh-air minimum AirAI keeps on empty floors
-
-  var mode = 'fixed';
-  var flow = OCC.map(function () { return 1; });
-  var parts = [];
-  var W = 0, H = 0, g = null, running = true, raf = 0, interacted = false;
-  var caption = document.getElementById('vizCaption');
-  var buttons = document.querySelectorAll('.toggle button');
-
-  function target(i) { return mode === 'fixed' ? 1 : Math.max(MIN_AIR, OCC[i]); }
-
-  function layout() {
-    var r = canvas.getBoundingClientRect();
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = r.width; H = r.height;
-    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var n = OCC.length;
-    var bx = W * 0.06, bw = W * 0.88, roof = H * 0.1, ground = H * 0.97;
-    var fh = (ground - roof) / n, shaft = Math.max(12, bw * 0.06);
-    var x0 = bx + shaft + bw * 0.1, x1 = bx + bw - bw * 0.06;
-    g = { n: n, bx: bx, bw: bw, roof: roof, ground: ground, fh: fh, shaft: shaft, start: bx + shaft, end: bx + bw - 4, people: [] };
-    for (var i = 0; i < n; i++) {
-      var count = Math.round(OCC[i] * 7), row = [];
-      for (var k = 0; k < count; k++) {
-        var jitter = (((k * 37 + i * 13) % 10) / 10 - 0.5) * 0.5;
-        row.push(x0 + (x1 - x0) * ((k + 0.5 + jitter) / 7));
-      }
-      g.people.push(row);
-    }
-    if (reduceMotion) seedStatic();
-  }
-
-  function spawn(i, x) {
-    var y = g.roof + g.fh * (i + 0.5) + (Math.random() - 0.5) * g.fh * 0.5;
-    // each streak crosses the floor in roughly 1.5 to 2.5 seconds, whatever the canvas width
-    var frames = 90 + Math.random() * 60;
-    parts.push({ i: i, x: x, y: y, v: (g.end - g.start) / frames, len: 8 + Math.random() * 14 });
-  }
-
-  function seedStatic() {
-    parts = [];
-    for (var i = 0; i < g.n; i++) {
-      var c = Math.round(target(i) * 14);
-      for (var k = 0; k < c; k++) spawn(i, g.start + (g.end - g.start) * ((k + 0.5) / 14));
-      flow[i] = target(i);
-    }
-  }
-
-  function drawFrame(t) {
-    ctx.clearRect(0, 0, W, H);
-    var line = 'rgba(232,240,246,0.22)';
-
-    // rooftop plant
-    ctx.strokeStyle = 'rgba(232,240,246,0.35)'; ctx.lineWidth = 1;
-    for (var u = 0; u < 3; u++) {
-      var ux = g.bx + g.bw * (0.5 + u * 0.14), uw = g.bw * 0.1, uh = g.fh * 0.42;
-      ctx.strokeRect(ux + 0.5, g.roof - uh + 0.5, uw, uh);
-    }
-
-    // empty floors glow amber in proportion to the air still being sent there
-    for (var i = 0; i < g.n; i++) {
-      if (OCC[i] === 0) {
-        var waste = (flow[i] - MIN_AIR) / (1 - MIN_AIR);
-        var gy = g.roof + g.fh * i + 1;
-        var wash = ctx.createLinearGradient(g.start, 0, g.bx + g.bw, 0);
-        wash.addColorStop(0, 'rgba(244,184,96,' + (0.34 * waste).toFixed(3) + ')');
-        wash.addColorStop(1, 'rgba(244,184,96,' + (0.12 * waste).toFixed(3) + ')');
-        ctx.fillStyle = wash;
-        ctx.fillRect(g.start, gy, g.bw - g.shaft, g.fh - 1);
-      }
-    }
-
-    // shell and floor plates
-    ctx.strokeStyle = 'rgba(232,240,246,0.5)';
-    ctx.strokeRect(g.bx + 0.5, g.roof + 0.5, g.bw, g.ground - g.roof);
-    ctx.strokeStyle = line;
-    for (var f = 1; f < g.n; f++) {
-      var fy = Math.round(g.roof + g.fh * f) + 0.5;
-      ctx.beginPath(); ctx.moveTo(g.bx, fy); ctx.lineTo(g.bx + g.bw, fy); ctx.stroke();
-    }
-
-    // supply shaft
-    ctx.fillStyle = 'rgba(107,207,237,0.07)';
-    ctx.fillRect(g.bx + 1, g.roof + 1, g.shaft, g.ground - g.roof - 1);
-    ctx.strokeStyle = 'rgba(107,207,237,0.4)';
-    ctx.beginPath(); ctx.moveTo(g.start + 0.5, g.roof); ctx.lineTo(g.start + 0.5, g.ground); ctx.stroke();
-    var total = flow.reduce(function (a, b) { return a + b; }, 0) / g.n;
-    ctx.fillStyle = 'rgba(107,207,237,' + (0.35 + 0.5 * total).toFixed(2) + ')';
-    var step = g.fh * 0.5, off = reduceMotion ? 0 : (t / 30) % step;
-    var dash = step * 0.45 * (0.4 + total);
-    for (var sy = g.roof + off; sy < g.ground; sy += step) {
-      // clip the last dash at ground level so it never runs below the building
-      ctx.fillRect(g.bx + g.shaft / 2 - 1, sy, 2, Math.min(dash, g.ground - sy));
-    }
-
-    // airflow streaks
-    for (var p = 0; p < parts.length; p++) {
-      var q = parts[p];
-      var prog = (q.x - g.start) / (g.end - g.start);
-      var a = Math.min(1, prog * 6) * (1 - Math.pow(prog, 3)) * 0.85;
-      var grad = ctx.createLinearGradient(q.x - q.len, 0, q.x, 0);
-      grad.addColorStop(0, 'rgba(107,207,237,0)');
-      grad.addColorStop(1, 'rgba(107,207,237,' + a.toFixed(3) + ')');
-      ctx.strokeStyle = grad; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(Math.max(g.start, q.x - q.len), q.y); ctx.lineTo(q.x, q.y); ctx.stroke();
-    }
-
-    // people
-    var r = Math.max(2.5, Math.min(4.5, g.fh * 0.09));
-    ctx.fillStyle = '#FFFFFF';
-    for (var fl = 0; fl < g.n; fl++) {
-      var py = g.roof + g.fh * (fl + 0.72);
-      for (var k = 0; k < g.people[fl].length; k++) {
-        ctx.beginPath(); ctx.arc(g.people[fl][k], py, r, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-  }
-
-  function tick(t) {
-    for (var i = 0; i < g.n; i++) {
-      flow[i] += (target(i) - flow[i]) * 0.03;
-      if (Math.random() < flow[i] * 0.5) spawn(i, g.start);
-    }
-    for (var p = parts.length - 1; p >= 0; p--) {
-      parts[p].x += parts[p].v;
-      if (parts[p].x > g.end) parts.splice(p, 1);
-    }
-    drawFrame(t);
-    if (running) raf = requestAnimationFrame(tick);
-  }
-
-  function setMode(m, byUser) {
-    if (byUser) interacted = true;
-    if (m === mode) return;
-    mode = m;
-    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === m)); });
-    describe();
-    if (reduceMotion) { seedStatic(); drawFrame(0); }
-  }
-  function describe() {
-    caption.textContent = T('viz.cap.' + mode);
-    canvas.setAttribute('aria-label', T('viz.label.' + mode));
-  }
-  buttons.forEach(function (b) {
-    b.addEventListener('click', function () { setMode(b.getAttribute('data-mode'), true); });
-  });
-  describe();
-  document.addEventListener('langchange', describe);
-
-  layout();
-  if (reduceMotion) {
-    drawFrame(0);
-  } else {
-    // prefill the floors so the first frame already shows airflow
-    for (var s = 0; s < 240; s++) {
-      for (var i = 0; i < g.n; i++) if (Math.random() < 0.42) spawn(i, g.start);
-      for (var p = parts.length - 1; p >= 0; p--) { parts[p].x += parts[p].v; if (parts[p].x > g.end) parts.splice(p, 1); }
-    }
-    raf = requestAnimationFrame(tick);
-    var autoSwitchQueued = false;
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        running = entries[0].isIntersecting;
-        cancelAnimationFrame(raf);
-        if (running) raf = requestAnimationFrame(tick);
-        // one orchestrated moment: 3s after the demo is first seen, show the switch once,
-        // unless the visitor gets there first
-        if (running && !autoSwitchQueued) {
-          autoSwitchQueued = true;
-          setTimeout(function () { if (!interacted) setMode('ai', false); }, 3000);
-        }
-      }).observe(canvas);
-    } else {
-      setTimeout(function () { if (!interacted) setMode('ai', false); }, 4200);
-    }
-  }
-
-  var resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      var oldStart = g.start, oldSpan = g.end - g.start, oldRoof = g.roof, oldFh = g.fh;
-      layout();
-      if (!reduceMotion) parts.forEach(function (q) {
-        q.x = g.start + (q.x - oldStart) / oldSpan * (g.end - g.start);
-        q.y = g.roof + (q.y - oldRoof) / oldFh * g.fh;
-      });
-      drawFrame(performance.now());
-    }, 120);
-  });
 })();

@@ -14,8 +14,8 @@
   <link rel="preload" as="font" type="font/woff2" href="fonts/schibstedgrotesk-normal-latin.woff2" crossorigin>
   <link rel="preload" as="image" href="img/hero-poster.jpg">
   <!-- ?v= forces browsers to fetch fresh files after an update; bump it whenever css/ or js/ changes -->
-  <link rel="stylesheet" href="css/fonts.css?v=20261005f">
-  <link rel="stylesheet" href="css/styles.css?v=20261005f">
+  <link rel="stylesheet" href="css/fonts.css?v=20261006i">
+  <link rel="stylesheet" href="css/styles.css?v=20261006i">
   <script>
     document.documentElement.classList.add('js');
     // apply a saved language choice before first paint, so the right fonts load straight away
@@ -109,6 +109,16 @@
       </li>
     </ul>
     <p class="source" data-i18n="problem.source">Sources: Hoang et al. (2022), a survey of Hanoi office buildings; Tuoi Tre News (2025).</p>
+
+    <!-- Live meter: HVAC spend of the reference building since the page loaded (counted in main.js) -->
+    <div class="meter">
+      <p class="meter__num" aria-hidden="true"><span class="meter__val" id="meterVal">0</span> <span class="meter__unit" data-i18n="meter.unit">VND</span></p>
+      <div class="meter__text">
+        <p class="meter__title" data-i18n="meter.title">The meter is running.</p>
+        <p class="meter__sub" data-i18n="meter.sub">This is what one standard Hanoi office has paid for HVAC since this page loaded.</p>
+        <p class="meter__note" data-i18n="meter.note">15,000 m² reference building: about 3.49 billion VND a year, or 111 VND every second.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -133,56 +143,67 @@
       <p class="lede" data-i18n="solution.lede">Most “smart building” software stops at recommendations. AirAI closes the loop all the way to the equipment.</p>
     </header>
 
-    <!-- each box shows number and title; its text appears on hover, or on tap on touch screens -->
-    <ol class="steps">
-      <li class="step" tabindex="0">
-        <p class="step__n" aria-hidden="true">1</p>
-        <h3 data-i18n="step1.title">Sensing</h3>
-        <div class="step__body">
-          <p class="step__hint" aria-hidden="true"><span class="hint--hover" data-i18n="step.hintHover">Hover to see more</span><span class="hint--tap" data-i18n="step.hintTap">Tap to see more</span></p>
-          <div class="step__more">
-            <p data-i18n="step1.text">Live occupancy, temperature and CO<sub>2</sub> in every zone, plus current (CT) sensors that confirm the equipment actually responded.</p>
-          </div>
-        </div>
-      </li>
-      <li class="step" tabindex="0">
-        <p class="step__n" aria-hidden="true">2</p>
-        <h3 data-i18n="step2.title">Decision-making</h3>
-        <div class="step__body">
-          <p class="step__hint" aria-hidden="true"><span class="hint--hover" data-i18n="step.hintHover">Hover to see more</span><span class="hint--tap" data-i18n="step.hintTap">Tap to see more</span></p>
-          <div class="step__more">
-            <p data-i18n="step2.text">Machine learning (LSTM, XGBoost) forecasts each zone’s thermal demand; Model Predictive Control sets valves, fan speeds and setpoints before demand peaks.</p>
-            <p class="step__accent" data-i18n="step2.accent">Most smart-building tools stop at this step.</p>
-          </div>
-        </div>
-      </li>
-      <li class="step step--act" tabindex="0">
-        <p class="step__n" aria-hidden="true">3</p>
-        <h3 data-i18n="step3.title">Actuation</h3>
-        <div class="step__body">
-          <p class="step__hint" aria-hidden="true"><span class="hint--hover" data-i18n="step.hintHover">Hover to see more</span><span class="hint--tap" data-i18n="step.hintTap">Tap to see more</span></p>
-          <div class="step__more">
-            <p data-i18n="step3.text">Commands run directly on the equipment: through the BMS where one exists, or through actuators AirAI installs where it doesn’t.</p>
-            <p class="step__accent" data-i18n="step3.accent">AirAI acts, then confirms each command happened and feeds that into the next prediction.</p>
-          </div>
-        </div>
-      </li>
-    </ol>
+    <!-- Exploded view (js/explode.js): a still building whose HVAC parts separate into the three
+         steps as the page scrolls. It waits for a click: the building then slides left, the panel
+         is pinned and scrolling plays the sequence once. Each part has a hidden button so it can be
+         reached with Tab; the buttons are placed over the parts by the script. -->
+    <div class="xp" id="xp">
+      <div class="xp__stage">
+        <canvas class="xp__canvas" aria-hidden="true"></canvas>
+        <button type="button" class="xp__start"><span class="hint--hover" data-i18n="xp.startClick">Click and scroll to see how it works.</span><span class="hint--tap" data-i18n="xp.startTap">Tap and scroll to see how it works.</span></button>
+        <ol class="xp__dots" aria-hidden="true"><li>1</li><li>2</li><li>3</li></ol>
 
-    <div class="demo">
-      <div class="demo__text">
-        <h3 class="h3-large" data-i18n="demo.title">See the difference on one building.</h3>
-        <p data-i18n="demo.text">Nine floors, four of them empty. Switch modes to see where the conditioned air goes.</p>
-        <div class="toggle" role="group" aria-label="How the building is controlled" data-i18n-attr="aria-label:demo.aria">
-          <button type="button" data-mode="fixed" aria-pressed="true" data-i18n="demo.fixed">Fixed schedule</button>
-          <button type="button" data-mode="ai" aria-pressed="false" data-i18n="demo.ai">With AirAI</button>
+        <div class="xp__col" data-g="0">
+          <div class="xp__head">
+            <p class="xp__n" aria-hidden="true">1</p>
+            <h3 class="xp__name" data-i18n="xp.g1.name">Sensing</h3>
+            <p class="xp__line" data-i18n="xp.g1.line">Live data from every zone, plus confirmation that equipment responded.</p>
+          </div>
+          <ul class="xp__parts">
+            <li><button type="button" class="xp__part" data-part="temp" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.temp.name">Zone temperature sensor</span></button></li>
+            <li><button type="button" class="xp__part" data-part="co2" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.co2.name">Occupancy / CO<sub>2</sub> sensor</span></button></li>
+            <li><button type="button" class="xp__part" data-part="ct" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.ct.name">CT current sensor</span></button></li>
+          </ul>
         </div>
-        <p class="viz__caption" id="vizCaption" aria-live="polite">On a fixed schedule every floor is cooled all day. The amber floors are empty.</p>
-        <p class="viz__key" data-i18n="demo.key"><span class="key key--person" aria-hidden="true"></span>People <span class="key key--air" aria-hidden="true"></span>Conditioned air <span class="key key--waste" aria-hidden="true"></span>Wasted cooling</p>
+        <div class="xp__col" data-g="1">
+          <div class="xp__head">
+            <p class="xp__n" aria-hidden="true">2</p>
+            <h3 class="xp__name" data-i18n="xp.g2.name">Decision-making</h3>
+            <p class="xp__line" data-i18n="xp.g2.line">AI forecasts demand and chooses the best settings before it peaks.</p>
+            <p class="xp__note" data-i18n="xp.g2.note">Most smart-building tools stop at this step.</p>
+          </div>
+          <ul class="xp__parts">
+            <li><button type="button" class="xp__part" data-part="gw" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.gw.name">AirAI gateway</span></button></li>
+            <li><button type="button" class="xp__part" data-part="cloud" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.cloud.name">Cloud AI</span></button></li>
+          </ul>
+        </div>
+        <div class="xp__col" data-g="2">
+          <div class="xp__head">
+            <p class="xp__n" aria-hidden="true">3</p>
+            <h3 class="xp__name" data-i18n="xp.g3.name">Actuation</h3>
+            <p class="xp__line" data-i18n="xp.g3.line">Commands run on the equipment, then get confirmed and fed back into the next prediction.</p>
+          </div>
+          <ul class="xp__parts">
+            <li><button type="button" class="xp__part" data-part="bms" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.bms.name">BMS controller</span></button></li>
+            <li><button type="button" class="xp__part" data-part="act" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.act.name">Damper actuator</span></button></li>
+            <li><button type="button" class="xp__part" data-part="vav" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.vav.name">VAV box and damper</span></button></li>
+            <li><button type="button" class="xp__part" data-part="ahu" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.ahu.name">AHU (Air Handling Unit)</span></button></li>
+            <li><button type="button" class="xp__part" data-part="duct" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.duct.name">Supply ducts</span></button></li>
+            <li><button type="button" class="xp__part" data-part="chiller" aria-describedby="xpTip"><span class="xp__label" data-i18n="xp.chiller.name">Chiller / cooling tower</span></button></li>
+          </ul>
+        </div>
+
+        <div class="xp__cap">
+          <p class="xp__caption" data-i18n="xp.caption">Brighter parts are what AirAI adds. Everything else is already in the building.</p>
+          <p class="xp__hint" aria-hidden="true"><span class="hint--hover" data-i18n="xp.hintHover">Hover any part to see what it does.</span><span class="hint--tap" data-i18n="xp.hintTap">Tap any part to see what it does.</span></p>
+        </div>
+
+        <div class="xp__tip" id="xpTip" role="tooltip">
+          <p class="xp__tip-name"></p>
+          <p class="xp__tip-tags"><span class="xp__tip-step"><i aria-hidden="true"></i><span></span></span><span class="xp__tip-status"></span></p>
+          <p class="xp__tip-text"></p>
+        </div>
       </div>
-      <figure class="viz">
-        <canvas class="viz__canvas" id="building" role="img" aria-label="Illustration of a nine-floor office building. On a fixed schedule, conditioned air flows into every floor, including four empty ones."></canvas>
-      </figure>
     </div>
 
     <ul class="safeguards" aria-label="Safeguards" data-i18n-attr="aria-label:safe.aria">
@@ -550,7 +571,19 @@
   </div>
 </footer>
 
-<script src="js/i18n.js?v=20261005f" defer></script>
-<script src="js/main.js?v=20261005f" defer></script>
+<script src="js/i18n.js?v=20261006i" defer></script>
+<script src="js/main.js?v=20261006i" defer></script>
+<!-- exploded HVAC view in the Solution section: Three.js r147 (the last release with plain-script
+     add-ons, so it runs without a build step and from file://), its bloom pass, and GSAP ScrollTrigger -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/CopyShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/LuminosityHighPassShader.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/EffectComposer.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/RenderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="js/explode.js?v=20261006i" defer></script>
 </body>
 </html>
