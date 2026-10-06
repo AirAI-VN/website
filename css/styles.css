@@ -153,7 +153,12 @@ p { text-wrap: pretty; }
   padding: 140px 0 clamp(110px, 18vh, 200px); overflow: hidden; background: var(--night); color: var(--white);
 }
 .hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 58% 50%; animation: settle 2.6s var(--ease) both;
-  filter: brightness(1.35); }   /* the footage is very dark; brighten it here rather than re-encode (also applies to the poster) */   /* 58%: the tower sits right of centre, so narrow screens crop towards it */
+  filter: brightness(1.35); }   /* the footage is very dark; brighten it here rather than re-encode (also applies to the poster) */
+/* desktop: nudge the tower right, away from the headline. The video box is widened past the
+   right edge (clipped by the hero), so its picture shifts right by half the extra width */
+@media (min-width: 941px) {
+  .hero__img { width: calc(100% + 14vw); }
+}   /* 58%: the tower sits right of centre, so narrow screens crop towards it */
 @keyframes settle { from { transform: scale(1.08); } to { transform: none; } }
 .hero__shade {
   position: absolute; inset: 0; pointer-events: none;
